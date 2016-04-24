@@ -7,50 +7,34 @@ import String
 
 import HN exposing (items)
 
-type alias Story =
-    { item : HN.Item
-    , link : String
-    , rank : Float
-    }
-
 -- hacker news items, filtered into just stories
-stories : Signal (List Story)
-stories = Signal.map (List.filterMap story) items.signal
-
--- url to a story based on yc
-yc = "https://news.ycombinator.com/item?id="
+stories : Signal (List HN.Item)
+stories = Signal.map (List.filter isStory) items.signal
 
 -- convert an item to a story (if it is)
-story : HN.Item -> Maybe Story
-story item =
-    if item.kind == "story" then
-        let link = case item.url of
-            Nothing -> yc ++ (toString item.id)
-            Just url -> url
-        in
-        Story item link 0.0 |> Just 
-    else
-        Nothing
+isStory : HN.Item -> Bool
+isStory item = item.kind == "story"
 
 -- render all stories
-viewStories : List Story -> Html
+viewStories : List HN.Item -> Html
 viewStories stories =
     Html.body [] <| List.map viewStory stories
 
 -- view a single story
-viewStory : Story -> Html
-viewStory story =
+viewStory : HN.Item -> Html
+viewStory item =
     div [ style storyStyle ] 
-        [ storyLink story
+        [ storyLink item
         , br [] []
-        , span [ style infoStyle ] [ info story ]
+        , span [ style infoStyle ] [ info item ]
         ]
 
 -- 
-storyLink story = 
+storyLink : HN.Item -> Html
+storyLink item = 
     a 
-        [ style linkStyle, href story.link, target "_blank" ]
-        [ text story.item.title ]
+        [ style linkStyle, href <| HN.link item, target "_blank" ]
+        [ text item.title ]
 
 -- how to render a story div
 storyStyle =
@@ -70,12 +54,12 @@ linkStyle =
     , ("color", "#a52")
     ]
 
-info story =
+info item =
     text <| String.concat
         [ "posted by "
-        , story.item.by
+        , item.by
         , " ("
-        , toString story.item.score
+        , toString item.score
         , " points)"
         ]
 

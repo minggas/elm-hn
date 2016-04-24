@@ -13,7 +13,7 @@ type alias Item =
     , by : String
     , text : Maybe String
     , url : Maybe String
-    , time : Int
+    , time : Float
     , score : Int
     }
 
@@ -23,6 +23,7 @@ items = Signal.mailbox []
 
 -- base endpoint of all hn queries
 v0 = "https://hacker-news.firebaseio.com/v0/"
+yc = "https://news.ycombinator.com/item?id="
 
 -- download the top N stories
 topStories : Int -> a -> Task.Task Http.Error ()
@@ -37,18 +38,25 @@ item : Int -> Task.Task Http.Error Item
 item id = Http.get decoder (v0 ++ "item/" ++ (toString id) ++ ".json")
 
 -- calculate the rank of an item
-rank : Int -> Int -> String -> Float
-rank score age link =
-    let hours = (age + 7200) // 3600 in
-    let rank = case score of
+rank : Float -> Item -> Float
+rank time item =
+    let age = time - item.time in
+    let hours = (age + 7200) / 3600 in
+    let rank = case item.score of
         0 -> 0
-        n -> (0.8 ^ (n - 1)) / (1.8 ^ (toFloat hours))
+        n -> (0.8 ^ (n - 1)) / (1.8 ^ hours)
     in
-    if String.length link == 0 then
-        rank * 0.4
-    else
-        rank
+    case item.url of
+        Just _ -> rank
+        Nothing -> rank * 0.4
 
+--
+link : Item -> String
+link item =
+    case item.url of
+        Just url -> url
+        Nothing -> yc ++ (toString item.id)
+        
 -- json decoder into hn item record
 decoder : Json.Decoder Item
 decoder =
@@ -59,5 +67,5 @@ decoder =
         ("by" := Json.string)
         (Json.maybe <| "text" := Json.string)
         (Json.maybe <| "url" := Json.string)
-        ("time" := Json.int)
+        ("time" := Json.float)
         ("score" := Json.int)
