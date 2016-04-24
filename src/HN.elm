@@ -2,6 +2,7 @@ module HN where
 
 import Json.Decode as Json exposing ((:=))
 import Http exposing (..)
+import String
 import Task exposing (andThen)
 import Time
 
@@ -34,6 +35,19 @@ topStories n _ =
 -- download an individual hn item
 item : Int -> Task.Task Http.Error Item
 item id = Http.get decoder (v0 ++ "item/" ++ (toString id) ++ ".json")
+
+-- calculate the rank of an item
+rank : Int -> Float -> String -> Float
+rank score age link =
+    let hours = (age + 7200) // 3600 in
+    let rank = case score of
+        0 -> 0
+        n -> (0.8 ^ (n - 1)) / (1.8 ^ (toFloat hours))
+    in
+    if String.length link == 0 then
+        rank * 0.4
+    else
+        rank
 
 -- json decoder into hn item record
 decoder : Json.Decoder Item
