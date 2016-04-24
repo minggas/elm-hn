@@ -37,7 +37,7 @@ item : Int -> Task.Task Http.Error Item
 item id = Http.get decoder (v0 ++ "item/" ++ (toString id) ++ ".json")
 
 -- calculate the rank of an item
-rank : Int -> Float -> String -> Float
+rank : Int -> Int -> String -> Float
 rank score age link =
     let hours = (age + 7200) // 3600 in
     let rank = case score of
