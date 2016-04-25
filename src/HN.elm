@@ -50,13 +50,14 @@ rank time item =
         Just _ -> rank
         Nothing -> rank * 0.4
 
---
+-- returns the link to an item or its comments page
 link : Item -> String
 link item =
     case item.url of
         Just url -> url
         Nothing -> comments item
 
+-- returns the link to the comments of an item
 comments : Item -> String
 comments item = yc ++ (toString item.id)
 
