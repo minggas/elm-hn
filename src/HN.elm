@@ -18,27 +18,27 @@ type alias Item =
     }
 
 -- downloaded stories
-items : Signal.Mailbox (List Item)
-items = Signal.mailbox []
+items : Signal.Mailbox (Time.Time, List Item)
+items = Signal.mailbox (0.0, [])
 
 -- base endpoint of all hn queries
 v0 = "https://hacker-news.firebaseio.com/v0/"
 yc = "https://news.ycombinator.com/item?id="
 
 -- download the top N stories
-topStories : Int -> a -> Task.Task Http.Error ()
-topStories n _ =
+topStories : Int -> Time.Time -> Task.Task Http.Error ()
+topStories n time =
     let url = v0 ++ "topstories.json" in
     Http.get (Json.list Json.int) url
         `andThen` (Task.sequence << List.map item << List.take n)
-        `andThen` (Signal.send items.address)
+        `andThen` (Signal.send items.address << (,) time)
 
 -- download an individual hn item
 item : Int -> Task.Task Http.Error Item
 item id = Http.get decoder (v0 ++ "item/" ++ (toString id) ++ ".json")
 
 -- calculate the rank of an item
-rank : Float -> Item -> Float
+rank : Time.Time -> Item -> Float
 rank time item =
     let age = time - item.time in
     let hours = (age + 7200) / 3600 in
