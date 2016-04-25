@@ -27,6 +27,7 @@ viewStory item =
         [ storyLink item
         , br [] []
         , span [ style infoStyle ] [ info item ]
+        , commentsLink item
         ]
 
 -- 
@@ -35,6 +36,12 @@ storyLink item =
     a 
         [ style linkStyle, href <| HN.link item, target "_blank" ]
         [ text item.title ]
+
+commentsLink : HN.Item -> Html
+commentsLink item =
+    a
+        [ style commentsStyle, href <| HN.comments item, target "_blank" ]
+        [ text <| (toString item.kids) ++ " comments" ]
 
 -- how to render a story div
 storyStyle =
@@ -50,9 +57,11 @@ storyStyle =
 
 -- how to render a story link
 linkStyle =
-    [ ("text-decoration", "none")
-    , ("color", "#a52")
+    [ ("color", "#a52")
     ]
+
+commentsStyle =
+    linkStyle ++ infoStyle ++ [("color", "#d73")]
 
 info item =
     text <| String.concat
@@ -61,6 +70,7 @@ info item =
         , " ("
         , toString item.score
         , " points)"
+        , " | "
         ]
 
 infoStyle = 

@@ -11,10 +11,10 @@ type alias Item =
     , kind : String
     , title : String
     , by : String
-    , text : Maybe String
-    , url : Maybe String
     , time : Float
     , score : Int
+    , url : Maybe String
+    , kids : Int
     }
 
 -- downloaded stories
@@ -55,8 +55,11 @@ link : Item -> String
 link item =
     case item.url of
         Just url -> url
-        Nothing -> yc ++ (toString item.id)
-        
+        Nothing -> comments item
+
+comments : Item -> String
+comments item = yc ++ (toString item.id)
+
 -- json decoder into hn item record
 decoder : Json.Decoder Item
 decoder =
@@ -65,7 +68,15 @@ decoder =
         ("type" := Json.string)
         ("title" := Json.string)
         ("by" := Json.string)
-        (Json.maybe <| "text" := Json.string)
-        (Json.maybe <| "url" := Json.string)
         ("time" := Json.float)
         ("score" := Json.int)
+        (Json.maybe <| "url" := Json.string)
+        (commentsDecoder)
+
+-- count the number of child items when decoding
+commentsDecoder : Json.Decoder Int
+commentsDecoder =
+    Json.oneOf
+        [ Json.map List.length <| "kids" := Json.list Json.int
+        , Json.succeed 0
+        ]

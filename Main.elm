@@ -28,7 +28,7 @@ main =
 
 -- every minute get the top stories
 port latest : Signal (Task.Task Http.Error ())
-port latest = Signal.map (HN.topStories 26) <| Time.every Time.minute
+port latest = Signal.map (HN.topStories 30) <| Time.every Time.minute
 
 -- periodically update the stories and rankings
 update : Signal Action
