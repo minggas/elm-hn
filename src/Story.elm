@@ -15,9 +15,11 @@ type alias Story =
 
 -- hacker news items, filtered into just stories
 stories : Signal (List Story)
-stories = 
-    let f = \(t, items) -> List.filterMap (story t) <| items in
-    Signal.map f items.signal
+stories = Signal.map filterStories items.signal
+
+-- rank story items and return them
+filterStories : (Time.Time, List HN.Item) -> List Story
+filterStories (t, items) = List.filterMap (story t) <| items 
 
 -- convert an item to a story (if it is)
 story : Time.Time -> HN.Item -> Maybe Story
