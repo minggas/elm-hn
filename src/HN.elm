@@ -1,7 +1,7 @@
 module HN where
 
 import Json.Decode as Json exposing ((:=))
-import Http exposing (..)
+import Http
 import String
 import Task exposing (andThen)
 import Time
