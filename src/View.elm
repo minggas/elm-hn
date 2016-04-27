@@ -31,7 +31,7 @@ title item = link titleClass (HN.link item) [ text item.title ]
 comments : HN.Item -> Html
 comments item =
     link commentClass (HN.comments item)
-        [ text <| (toString item.kids) ++ " comments"
+        [ text <| (toString <| List.length item.kids) ++ " comments"
         ]
 
 -- common anchor pattern
@@ -68,5 +68,5 @@ storyClass =
     , ("overflow", "hidden")
     , ("text-overflow", "ellipsis")
     , ("white-space", "nowrap")
-    , ("border-top", "1px solid #fda")
+    , ("border-top", "1px solid #eee")
     ]

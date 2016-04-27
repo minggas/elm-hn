@@ -14,7 +14,7 @@ type alias Item =
     , time : Float
     , score : Int
     , url : Maybe String
-    , kids : Int
+    , kids : List Int
     }
 
 -- downloaded stories
@@ -72,12 +72,7 @@ decoder =
         ("time" := Json.float)
         ("score" := Json.int)
         (Json.maybe <| "url" := Json.string)
-        (commentsDecoder)
-
--- count the number of child items when decoding
-commentsDecoder : Json.Decoder Int
-commentsDecoder =
-    Json.oneOf
-        [ Json.map List.length <| "kids" := Json.list Json.int
-        , Json.succeed 0
-        ]
+        (Json.oneOf
+            [ "kids" := Json.list Json.int
+            , Json.succeed []
+            ])

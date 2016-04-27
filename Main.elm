@@ -9,12 +9,13 @@ import HN exposing (..)
 import Story exposing (..)
 import View exposing (..)
 
-type Action
-    = Refresh (List Story)
-
 type alias Model =
     { stories : List Story
     }
+
+-- model update actions
+type Action
+    = Refresh (List Story)
 
 -- the final view of all the hn stories
 main : Signal Html.Html
