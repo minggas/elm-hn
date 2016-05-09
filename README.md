@@ -181,7 +181,7 @@ Now that we've decided on a course, the first step is to update the type signatu
 
 ```elm
 -- update the items with the latest response
-updateItems : (List Item) -> Task.Task a ()
+updateItems : List Item -> Task.Task a ()
 updateItems xs = Signal.send items.address xs
 ```
 
