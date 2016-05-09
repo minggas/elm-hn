@@ -30,6 +30,7 @@ Step one is to get our version of "Hello, world" up. So, let's create our `Main.
 ```elm
 module Main where
 
+import Json.Decode exposing ((:=))
 import Html
 import Html.Attributes
 import Http
@@ -54,9 +55,7 @@ topStories : Task.Task Http.Error String
 topStories = Http.getString topStoriesUrl
 ```
 
-This required creating a [Task](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Task). The task runs in the background, and - upon completion - will either produce an error or a string: the body of the response.
-
-But, this is simply a *Task*; it doesn't run simply by existing. Instead, a [port](http://elm-lang.org/guide/reactivity#tasks) is used to run a Task. So, let's create a port to run it.
+This required creating a [Task](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Task). The task runs in the background, and - upon completion - will either produce an error or a string: the body of the response. But, it is only a Task *object*; it doesn't run simply by existing. Instead, a [port](http://elm-lang.org/guide/reactivity#tasks) is used to run a Task. So, let's create a port to run it.
 
 ```elm
 -- run the task
@@ -100,10 +99,10 @@ Next, let's modify the `latest` port to call `updateItems` after having download
 
 ```elm
 port latest : Task.Task Http.Error ()
-port latest : topStories `Task.andThen` updateItems`
+port latest : topStories `Task.andThen` updateItems
 ```
 
-*Note: if you aren't familiar with the `` `...` `` syntax in Elm, it's simply a way of using a 2-arity function as an infix operator.* 
+*Note: if you aren't familiar with the `` `...` `` syntax in Elm, it's simply a way of using a 2-arity function as an infix operator. The above could also have been written `Task.andThen topStories updateItems`.* 
 
 ## Responding to Signals
 
@@ -127,13 +126,7 @@ All this in ~25 lines of code. Not too shabby. But we're far from done.
 
 ## Parsing JSON
 
-Currently, we're just displaying the response body as a string. But, obviously, that body needs to be parsed into the list of IDs so each item can be downloaded in a task.
-
-```elm
-import Json.Decode exposing ((:=))
-```
-
-Instead of the `items` Mailbox being a String, let's make it a list of integer IDs.
+Currently, we're just displaying the response body as a string. But, that body needs to be parsed into the list of IDs so each item can be downloaded in a task. So, instead of the `items` Mailbox being a String, let's make it a list of integer IDs.
 
 ```elm
 items : Signal.Mailbox (List Int)
@@ -147,7 +140,7 @@ updateItems : (List Int) -> Task.Task a ()
 updateItems ids = Signal.send items.address ids
 ```
 
-Of course, this means that the `topStories` cannot return a String either, but rather must parse the response body and decode it. Luckily for us, the `Http` module has a function to do this for us as long as we pass it a [Json decoder](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Json-Decode) to use. So, let's do that.
+Of course, this means that the `topStories` cannot return a String either, but rather must parse the response body and decode it. Luckily for us, the `Http` module has a function to do this for us as long as we pass it a [Json decoder](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Json-Decode) to use.
 
 ```elm
 topStories : Task.Task Http.Error (List Int)
@@ -215,7 +208,7 @@ itemDecoder =
         (Json.maybe ("url" := Json.string))
 ```
 
-*Note: even though `Item` is a `type alias`, it is also a function that takes 3 parameters: type, title, and optional url. The `object4` decoder chains the decoding of a JSON object and then passes the results of the 3 keys parsed to the `Item` function.*
+*Note: even though `Item` is a `type alias`, it is also a function that takes 4 parameters: an id, type, title, and optional url. The `object4` decoder chains the decoding of a JSON object and then passes the results of the keys parsed to the `Item` function.*
 
 Now we can update the `latest` port to chain the Tasks together...
 
@@ -228,7 +221,7 @@ port latest = topStories
 If you run `Main.elm` now, it will probably take a while. This is because `topStories` returns a list of ~500 IDs. It's highly doubtful that you'd want all of them. So, let's trim that to only the top 20 for now.
 
 ```elm
-downloadItems ids = Task.sequence (List.map item (List.take 10 ids))
+downloadItems ids = Task.sequence (List.map item (List.take 20 ids))
 ```
 
 ## Filtering Stories
@@ -244,7 +237,7 @@ stories = Signal.map (List.filter (\i -> i.kind == "story")) items.signal
 As you can see, every time the `items` Mailbox is updated, `stories` will read and filter it into a new list of Items. We can now update `main` to watch the `stories` Signal instead.
 
 ```elm
-main = Signal.map (\ids -> Html.body [] [Html.text (toString ids)]) stories
+main = Signal.map (\story -> Html.body [] [Html.text (toString story)]) stories
 ```
 
 ## A Better Presentation
@@ -263,17 +256,15 @@ render item = Html.li [] [link item]
 -- create a link to an item
 link : Item -> Html.Html
 link item =
-    let url = case item.url of
-        Just href -> href
-        Nothing -> "https://news.ycombinator.com/item?id=" ++ (toString item.id)
-    in
+    let def = "https://news.ycombinator.com/item?id=" ++ (toString item.id) in
+    let url = Maybe.withDefault def item.url in
     Html.a [Html.Attributes.href url] [Html.text item.title]
 ```
 
 And, let's update `main` to render them...
 
 ```elm
-main = Signal.map (\items -> Html.body [] [renderItems items]) items.signal
+main = Signal.map (\items -> Html.body [] [renderItems items]) stories
 ```
 
 That's it!
@@ -282,10 +273,9 @@ That's it!
 
 Obviously the `elm-hn` reposity does considerably more...
 
-* Ranks the stories
-* Continuously updates the stories
+* Ranks and sorts the stories
+* Continuously updates the stories periodically
 * Shows author, points, comments, ...
 * Styles the output
 
 All of these are pretty trivial once you have the full understanding of how to use Tasks, Signals, and ports. So, the above features are left as exercises to the reader. Look at the code and try and add them each yourself. And have fun doing it!
-
