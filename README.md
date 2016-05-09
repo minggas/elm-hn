@@ -46,10 +46,6 @@ main = Html.body [] [Html.text "Hello, world!"]
 Next, let's start by downloading all the Hacker News items and simply displaying them. We can do this with the [Hacker News API](https://github.com/HackerNews/API), specifically the `/topstories` route:
 
 ```elm
-import Html
-
-main = ...
-
 -- the topstories route
 topStoriesUrl = "https://hacker-news.firebaseio.com/v0/topstories.json"
 
@@ -63,8 +59,6 @@ This required creating a [Task](http://package.elm-lang.org/packages/elm-lang/co
 But, this is simply a *Task*; it doesn't run simply by existing. Instead, a [port](http://elm-lang.org/guide/reactivity#tasks) is used to run a Task. So, let's create a port to run it.
 
 ```elm
-topStories = ...
-
 -- run the task
 port latest : Task.Task Http.Error String
 port latest = topStories
@@ -89,8 +83,6 @@ A Mailbox has a Signal, as well as an Address, which is used to send value updat
 Let's start by creating a mailbox to write to.
 
 ```elm
-port latest = ...
-
 -- a mailbox for all the latest hacker news items
 items : Signal.Mailbox String
 items = Signal.mailbox ""
@@ -99,8 +91,6 @@ items = Signal.mailbox ""
 Now, we need to send the response body gotten from the Task and send it to the mailbox. First, let's make a function that writes the response body to the mailbox...
 
 ```elm
-items = ...
-
 -- update the items with the latest response
 updateItems : String -> Task.Task a ()
 updateItems body = Signal.send items.address body
@@ -197,9 +187,6 @@ Both of these are possible, but for this tutorial we'll go with option 1 (leavin
 Now that we've decided on a course, the first step is to update the type signatures from `List Int` to `List Item` - the final value that should end up in the Mailbox.
 
 ```elm
-items : Signal.Mailbox (List Item)
-items = ...
-
 -- update the items with the latest response
 updateItems : (List Item) -> Task.Task a ()
 updateItems xs = Signal.send items.address xs
