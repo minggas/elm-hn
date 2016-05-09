@@ -136,7 +136,7 @@ items = Signal.mailbox []
 And, when we send the response body to the mailbox, we cannot send a string, we must update the items with a list of IDs.
 
 ```elm
-updateItems : (List Int) -> Task.Task a ()
+updateItems : List Int -> Task.Task a ()
 updateItems ids = Signal.send items.address ids
 ```
 
