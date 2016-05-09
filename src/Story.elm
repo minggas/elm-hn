@@ -8,23 +8,36 @@ import Time
 
 import HN exposing (items)
 
+{-| A HN Item where the kind is "story", and ranked. -}
 type alias Story =
     { item : HN.Item
     , rank : Float
     }
 
--- hacker news items, filtered into just stories
+{-| A filtered list of HN Items that are Stories. -}
 stories : Signal (List Story)
 stories = Signal.map filterStories items.signal
 
--- rank story items and return them
+{-| Filters stories from a list of HN Items and ranks them. -}
 filterStories : (Time.Time, List HN.Item) -> List Story
 filterStories (t, items) = List.filterMap (story t) <| items 
 
--- convert an item to a story (if it is)
+{-| Create a Story from a HN Item if it is a Story. -}
 story : Time.Time -> HN.Item -> Maybe Story
 story time item =
     if item.kind == "story" then
-        Just <| Story item (HN.rank time item)
+        Just (Story item <| rank time item)
     else
         Nothing
+
+{-| Calculates the page rank of an Item at a given Time. -}
+rank : Time.Time -> HN.Item -> Float
+rank time item =
+    let age = (time + 7200 - item.time) / 3600 in
+    let rank = case item.score of
+        0 -> 0
+        n -> (0.8 ^ (n - 1)) / (1.8 ^ age)
+    in
+    case item.url of
+        Just _ -> rank
+        Nothing -> rank * 0.4

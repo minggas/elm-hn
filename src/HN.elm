@@ -6,6 +6,11 @@ import String
 import Task exposing (andThen)
 import Time
 
+{-| End-points for the HN API and item comment pages. -}
+v0 = "https://hacker-news.firebaseio.com/v0/"
+yc = "https://news.ycombinator.com/item?id="
+
+{-| A parsed JSON item from HN. -}
 type alias Item =
     { id : Int
     , kind : String
@@ -17,15 +22,11 @@ type alias Item =
     , kids : List Int
     }
 
--- downloaded stories
+{-| A mailbox for keeping track of recently downloaded Items from HN -}
 items : Signal.Mailbox (Time.Time, List Item)
 items = Signal.mailbox (0.0, [])
 
--- base endpoint of all hn queries
-v0 = "https://hacker-news.firebaseio.com/v0/"
-yc = "https://news.ycombinator.com/item?id="
-
--- download the top N stories
+{-| Task to download the last N Items on HN. -}
 topStories : Int -> Time.Time -> Task.Task Http.Error ()
 topStories n time =
     let url = v0 ++ "topstories.json" in
@@ -33,35 +34,19 @@ topStories n time =
         `andThen` (Task.sequence << List.map item << List.take n)
         `andThen` (Signal.send items.address << (,) time)
 
--- download an individual hn item
+{- Task to download an individual Item from HN. -}
 item : Int -> Task.Task Http.Error Item
 item id = Http.get decoder (v0 ++ "item/" ++ (toString id) ++ ".json")
 
--- calculate the rank of an item
-rank : Time.Time -> Item -> Float
-rank time item =
-    let age = time - item.time in
-    let hours = (age + 7200) / 3600 in
-    let rank = case item.score of
-        0 -> 0
-        n -> (0.8 ^ (n - 1)) / (1.8 ^ hours)
-    in
-    case item.url of
-        Just _ -> rank
-        Nothing -> rank * 0.4
-
--- returns the link to an item or its comments page
+{-| Returns either an Item's external URL or its comments page. -}
 link : Item -> String
-link item =
-    case item.url of
-        Just url -> url
-        Nothing -> comments item
+link item = Maybe.withDefault (comments item) item.url
 
--- returns the link to the comments of an item
+{-| Returns the URL to the comments of an Item. -}
 comments : Item -> String
 comments item = yc ++ (toString item.id)
 
--- json decoder into hn item record
+{-| HN Item JSON decoder. -}
 decoder : Json.Decoder Item
 decoder =
     Json.object8 Item
