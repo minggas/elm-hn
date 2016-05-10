@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
-    "summary": "News trolling",
-    "repository": "https://github.com/massung/troll.git",
+    "summary": "Hacker News Trolling",
+    "repository": "https://github.com/massung/elm-hn.git",
     "license": "BSD3",
     "source-directories": [
         ".",
