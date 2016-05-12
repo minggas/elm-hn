@@ -1,12 +1,10 @@
-module Story where
+module Story exposing (..)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
 import Http
-import String
+import Task
 import Time
 
-import HN exposing (items)
+import HN exposing (..)
 
 {-| A HN Item where the kind is "story", and ranked. -}
 type alias Story =
@@ -14,13 +12,13 @@ type alias Story =
     , rank : Float
     }
 
-{-| A filtered list of HN Items that are Stories. -}
-stories : Signal (List Story)
-stories = Signal.map filterStories items.signal
+{-| A filtered list of HN Items that are ranked by time. -}
+stories : Int -> Time.Time -> Task.Task Http.Error (List Story)
+stories n time = Task.map (List.filterMap (story time)) (HN.topStories n)
 
 {-| Filters stories from a list of HN Items and ranks them. -}
-filterStories : (Time.Time, List HN.Item) -> List Story
-filterStories (t, items) = List.filterMap (story t) <| items 
+filterStories : Time.Time -> List HN.Item -> List Story
+filterStories time items = List.filterMap (story time) <| items 
 
 {-| Create a Story from a HN Item if it is a Story. -}
 story : Time.Time -> HN.Item -> Maybe Story

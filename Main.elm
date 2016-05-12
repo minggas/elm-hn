@@ -1,47 +1,54 @@
-module Main where
+module Main exposing (..)
 
-import Html
-import Http
-import Task exposing (andThen)
-import Time exposing (every, minute)
+import Html exposing (..)
+import Html.App as App
+import Html.Attributes exposing (..)
+import Task exposing (perform)
+import Time exposing (Time, every, minute, now)
 
-import HN exposing (..)
 import Story exposing (..)
+import Styles exposing (..)
 import View exposing (..)
 
 {-| The Model is just a list of stories. -}
-type alias Model =
-    { stories : List Story
-    }
+type alias Model = List Story
 
 {-| Interface and mailbox signals combine into Actions. -}
 type Action
-    = Refresh (List Story)
+    = Get Time
+    | Refresh Model
+    | None
 
 {-| The final, aggregated model transformed to HTML. -}
-main : Signal Html.Html
-main = 
-    let stories = Signal.foldp update (Model []) aggregate in
-    Signal.map (view << viewStories << rankedStories) stories
+main : Program Never
+main = App.program
+    { init = ([], perform ignore Get now)
+    , subscriptions = latest
+    , update = aggregate
+    , view = view
+    }
 
 {-| Wrap a list of rendered Stories into a parent HTML element. -}
-view : List Html.Html -> Html.Html
-view = Html.body []
+view : Model -> Html Action
+view model = 
+     Html.body [style [Styles.font]] <| viewStories <| rankedStories model
 
 {-| Every minute, get the top 30 stories from HN. -}
-port latest : Signal (Task.Task Http.Error ())
-port latest = Signal.map (HN.topStories 30) <| every minute
+latest : Model -> Sub Action
+latest model = every minute Get
 
-{-| Create a Refresh action each time the latest stories change. -}
-aggregate : Signal Action
-aggregate = Signal.map Refresh stories
+--{-| Update the model. -}
+aggregate : Action -> Model -> (Model, Cmd Action)
+aggregate action model =
+    case action of
+        Get time -> (model, perform ignore Refresh <| Story.stories 30 time) 
+        Refresh stories -> (stories, Cmd.none)
+        None -> (model, Cmd.none)
 
 {-| Sort all the stories in the model based on their rank. -}
-rankedStories : Model -> List Story
-rankedStories model = List.sortBy (\s -> s.rank) model.stories
+rankedStories : List Story -> List Story
+rankedStories = List.sortBy (\s -> s.rank)
 
-{-| Updates the current Model given an Action. -}
-update : Action -> Model -> Model
-update action model =
-    case action of
-        Refresh stories -> { model | stories = stories }
+{-| Helper to ignore any error condition. -}
+ignore : a -> Action
+ignore _ = None

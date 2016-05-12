@@ -1,10 +1,8 @@
-module HN where
+module HN exposing (..)
 
 import Json.Decode as Json exposing ((:=))
 import Http
-import String
 import Task exposing (andThen)
-import Time
 
 {-| End-points for the HN API and item comment pages. -}
 v0 = "https://hacker-news.firebaseio.com/v0/"
@@ -22,17 +20,12 @@ type alias Item =
     , kids : List Int
     }
 
-{-| A mailbox for keeping track of recently downloaded Items from HN -}
-items : Signal.Mailbox (Time.Time, List Item)
-items = Signal.mailbox (0.0, [])
-
 {-| Task to download the last N Items on HN. -}
-topStories : Int -> Time.Time -> Task.Task Http.Error ()
-topStories n time =
+topStories : Int -> Task.Task Http.Error (List Item)
+topStories n =
     let url = v0 ++ "topstories.json" in
     Http.get (Json.list Json.int) url
         `andThen` (Task.sequence << List.map item << List.take n)
-        `andThen` (Signal.send items.address << (,) time)
 
 {- Task to download an individual Item from HN. -}
 item : Int -> Task.Task Http.Error Item

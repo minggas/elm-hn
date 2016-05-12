@@ -1,6 +1,6 @@
-module Styles where
+module Styles exposing (..)
 
--- Shared styles.    
+-- Shared styles.
 font = ("font", "Helvetica")
 titleSize = ("font-size", "16px")
 infoSize = ("font-size", "12px")
