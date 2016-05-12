@@ -1,8 +1,7 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Html exposing (..)
 import Html.App as App
-import Html.Attributes exposing (..)
 import Task exposing (perform)
 import Time exposing (Time, every, minute, now)
 
@@ -13,13 +12,13 @@ import View exposing (..)
 {-| The Model is just a list of stories. -}
 type alias Model = List Story
 
-{-| Interface and mailbox signals combine into Actions. -}
-type Action
+{-| All the possible Cmd messages to update the model. -}
+type Msg
     = Get Time
     | Refresh Model
     | None
 
-{-| The final, aggregated model transformed to HTML. -}
+{-| The final, aggregated model rendered to HTML. -}
 main : Program Never
 main = App.program
     { init = ([], perform ignore Get now)
@@ -29,18 +28,17 @@ main = App.program
     }
 
 {-| Wrap a list of rendered Stories into a parent HTML element. -}
-view : Model -> Html Action
-view model = 
-     Html.body [style [Styles.font]] <| viewStories <| rankedStories model
+view : Model -> Html Msg
+view model = Html.div [] <| Styles.css :: (viewStories <| rankedStories model)
 
 {-| Every minute, get the top 30 stories from HN. -}
-latest : Model -> Sub Action
+latest : Model -> Sub Msg
 latest model = every minute Get
 
 --{-| Update the model. -}
-aggregate : Action -> Model -> (Model, Cmd Action)
-aggregate action model =
-    case action of
+aggregate : Msg -> Model -> (Model, Cmd Msg)
+aggregate msg model =
+    case msg of
         Get time -> (model, perform ignore Refresh <| Story.stories 30 time) 
         Refresh stories -> (stories, Cmd.none)
         None -> (model, Cmd.none)
@@ -50,5 +48,5 @@ rankedStories : List Story -> List Story
 rankedStories = List.sortBy (\s -> s.rank)
 
 {-| Helper to ignore any error condition. -}
-ignore : a -> Action
+ignore : a -> Msg
 ignore _ = None

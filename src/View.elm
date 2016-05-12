@@ -1,12 +1,13 @@
-module View exposing (..)
+module View exposing (viewStories)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import String
 
+import Css
 import HN exposing (..)
 import Story exposing (..)
-import Styles exposing (..)
+import Styles
 
 {-| Render a list of Stories to HTML. -}
 viewStories : List Story -> List (Html a)
@@ -15,27 +16,24 @@ viewStories stories = List.map viewStory stories
 {-| Render a single Story to HTML. -}
 viewStory : Story -> Html a
 viewStory story =
-    div [ style Styles.storyClass ]
-        [ title story.item
-        , br [] []
-        , span [ style infoClass ] [ info story.item ]
-        , comments story.item
+    div [ Css.class ["Story"] ]
+        [ div [ Css.class ["Title"] ] [ title story.item ]
+        , div [ Css.class ["Info"] ] [ info story.item, comments story.item ]
         ]
+
+{-| Render a link to an external page. -}
+link : String -> String -> Html a
+link url desc = a [ href url, target "_blank" ] [ text desc ]
 
 {-| Render the title of a Story to HTML. -}
 title : HN.Item -> Html a
-title item = link titleClass (HN.link item) [ text item.title ]
+title item = link (Maybe.withDefault (HN.comments item) item.url) item.title
 
 {-| Render a link to the comments of a Story to HTML. -}
 comments : HN.Item -> Html a
 comments item =
-    link commentClass (HN.comments item)
-        [ text <| (toString <| List.length item.kids) ++ " comments"
-        ]
-
-{-| Render a link to an external page. -}
-link : List (String, String) -> String -> List (Html a) -> Html a
-link attr url = a [ style attr, href url, target "_blank" ]
+    let n = toString <| List.length item.kids in
+    link (HN.comments item) (n ++ " comments")
 
 {-| Render information about a HN Item. -}
 info : HN.Item -> Html a
