@@ -4,19 +4,21 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import String
 
+import Css exposing (..)
 import HN exposing (..)
 import Story exposing (..)
+import Styles exposing (..)
 
 {-| Render a list of Stories to HTML. -}
-viewStories : List Story -> List (Html a)
-viewStories stories = List.map viewStory stories
+viewStories : Css x Class msg -> List Story -> List (Html msg)
+viewStories css stories = List.map (viewStory css) stories
 
 {-| Render a single Story to HTML. -}
-viewStory : Story -> Html a
-viewStory story =
+viewStory : Css x Class msg -> Story -> Html msg
+viewStory css story =
     div [ class "Story" ]
-        [ div [ class "Title" ] [ title story.item ]
-        , div [ class "Info" ] [ info story.item, comments story.item ]
+        [ div [ css.class Title ] [ title story.item ]
+        , div [ css.class Info ] [ info story.item, comments story.item ]
         ]
 
 {-| Render a link to an external page. -}

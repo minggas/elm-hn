@@ -1,16 +1,22 @@
 module Css exposing
-    ( Sel (..)
+    ( Css
+    , Sel (..)
     , Pseudo (..)
     , Style
     , Descriptor
     , css
-    , id
-    , class
     )
 
 import Html exposing (..)
-import Html.Attributes
+import Html.Attributes exposing (id, class)
 import String exposing (concat, join)
+
+{-| Compiled CSS styles -}
+type alias Css id cls msg =
+    { node : Html msg
+    , id : id -> Attribute msg
+    , class : cls -> Attribute msg
+    }
 
 {-| A basic CSS selector. -}
 type Sel id cls
@@ -130,14 +136,10 @@ desc = concat << List.map (\(k, v) -> concat [k, ":", v, ";"])
 style : Style id class -> String
 style s = concat [ sel s.selector, "{", desc s.descriptor, "}" ]
 
-{-| Render a list of styles to an Html node. -}
-css : List (Style id class) -> Html a
-css styles = Html.node "style" [] <| [ text <| concat <| List.map style styles ]
-
-{-| Create an id attribute. -}
-id : String -> Html.Attribute a
-id = Html.Attributes.id
-
-{-| Create a class attribute. -}
-class : List String -> Html.Attribute a
-class = Html.Attributes.class << join " " 
+{-| Returns a compiled CSS object with style node and attribute builders. -}
+css : List (Style id cls) -> Css id cls msg
+css styles =
+    { node = node "style" [] [ text <| concat <| List.map style styles ]
+    , id = id << toString
+    , class = class << toString
+    }

@@ -1,6 +1,8 @@
-module Styles exposing (css)
+module Styles exposing
+    ( Class(..)
+    , css
+    )
 
-import Html
 import Css
 
 {-| CSS selector classes. -}
@@ -11,7 +13,7 @@ type Class
     | Comment
 
 {-| Final, rendered CSS <style> tag. -}
-css : Html.Html a
+css : Css.Css x Class msg
 css = Css.css styles
 
 {-| All the styles in the CSS. -}

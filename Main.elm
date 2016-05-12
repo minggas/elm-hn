@@ -29,7 +29,7 @@ main = App.program
 
 {-| Wrap a list of rendered Stories into a parent HTML element. -}
 view : Model -> Html Msg
-view model = Html.div [] <| Styles.css :: (viewStories <| rankedStories model)
+view model = Html.div [] <| css.node :: (viewStories css <| rankedStories model)
 
 {-| Every minute, get the top 30 stories from HN. -}
 latest : Model -> Sub Msg
