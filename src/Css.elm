@@ -19,9 +19,11 @@ type Sel id cls
     | Class cls
     | Pseudo (List Pseudo) (Sel id cls)
 
-{-| Pseudo CSS selectors. -}
+{-| Pseudo CSS selectors and elements. -}
 type Pseudo
-    = Link
+    = Any
+    | Default
+    | Link
     | Visited
     | Hover
     | Active
@@ -31,7 +33,11 @@ type Pseudo
     | Disabled
     | Checked
     | Indeterminate
+    | Invalid
+    | Valid
+    | Fullscreen
     | Root
+    | Scope
     | FirstChild
     | LastChild
     | NthChild Int
@@ -42,11 +48,16 @@ type Pseudo
     | LastOfType
     | OnlyOfType
     | Empty
-    | Lang
+    | Left
+    | Right
+    | Lang String
+    | Dir String
     | FirstLetter
     | FirstLine
     | Before
     | After
+    | Selection
+    | Backdrop
 
 {-| Key/value style descriptors. -}
 type alias Descriptor = List (String, String)
@@ -61,6 +72,8 @@ type alias Style id cls =
 pseudo : Pseudo -> String
 pseudo p = 
     case p of
+        Any -> ":any"
+        Default -> ":default"
         Link -> ":link"
         Visited -> ":visited"
         Hover -> ":hover"
@@ -71,7 +84,11 @@ pseudo p =
         Disabled -> ":disabled"
         Checked -> ":checked"
         Indeterminate -> ":indeterminate"
+        Invalid -> ":invalid"
+        Valid -> ":valid"
+        Fullscreen -> ":fullscreen"
         Root -> ":root"
+        Scope -> ":scope"
         FirstChild -> ":first-child"
         LastChild -> ":last-child"
         NthChild n -> ":nth-child(" ++ (toString n) ++ ")"
@@ -81,12 +98,17 @@ pseudo p =
         FirstOfType -> ":first-of-type"
         LastOfType -> ":last-of-type"
         OnlyOfType -> ":only-of-type"
-        Lang -> ":lang"
+        Lang s -> ":lang(" ++ s ++ ")"
+        Dir s -> ":dir(" ++ s ++ ")"
         Empty -> ":empty"
+        Left -> ":left"
+        Right -> ":right"
         FirstLetter -> "::first-letter"
         FirstLine -> "::first-line"
         Before -> "::before"
         After -> "::after"
+        Selection -> "::selection"
+        Backdrop -> "::backdrop"
 
 {-| Render a selector to a string. -}
 sel : List (Sel id cls) -> String
