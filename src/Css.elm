@@ -126,7 +126,7 @@ sel =
             Class cls -> "." ++ (toString cls)
             Pseudo ps s -> concat <| sel' s :: (List.map pseudo ps)
     in
-    join " " << List.map sel'
+    join "," << List.map sel'
 
 {-| Render a descriptor to a string. -}
 desc : Descriptor -> String
