@@ -56,14 +56,14 @@ header model =
         [ span [ css.id Logo ] [ text "Hacker News Troll" ]
         , span [ css.id Controls ]
             [ if model.view == Top then
-                b [] [ text "TOP" ]
+                b [ css.class Enabled ] [ text "Top Stories" ]
               else
-                a [ href "#", onClick ShowTop ] [ text "TOP" ]
-            , text " | "
+                a [ href "#", onClick ShowTop ] [ text "Top Stories" ]
+            , text " • "
             , if model.view == Newest then
-                b [] [ text "NEW" ]
+                b [ css.class Enabled ] [ text "New" ]
               else
-                a [ href "#", onClick ShowNewest ] [ text "NEW" ]
+                a [ href "#", onClick ShowNewest ] [ text "New" ]
             ]
         ]
 

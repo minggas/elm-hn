@@ -20,6 +20,7 @@ type Class
     | Title
     | Info
     | Comment
+    | Enabled
 
 {-| Final, rendered CSS <style> tag. -}
 css : Css.Css Id Class msg
@@ -32,6 +33,7 @@ styles =
     , headerStyle
     , logoStyle
     , controlsStyle
+    , enabledStyle
     , loaderStyle
     , contentStyle
     , storyStyle
@@ -64,8 +66,8 @@ headerStyle =
         , ("width", "100%")
         , ("height", "50px")
         , ("overflow", "hidden")
-        , ("background-color", "#63d")
-        , ("color", "#fff")
+        , ("background-color", "#222")
+        , ("color", "#ddd")
         , ("font-weight", "bold")
         ]
     }
@@ -81,17 +83,28 @@ logoStyle =
         , ("top", "14px")
         ]
     }
-
-{-| Toggle options for user. -}
+    
 controlsStyle : Css.Rule Id Class
 controlsStyle =
     { selector = [ Css.Id Controls ]
     , descriptor =
-        [ ("font-family", "Consolas, monospace")
-        , ("font-size", "18px")
+        [ ("font-size", "18px")
+        , ("font-weight", "200")
         , ("position", "fixed")
         , ("right", "30px")
         , ("top", "16px")
+        ]
+    }
+
+{-| Toggle options for user. -}
+enabledStyle : Css.Rule Id Class
+enabledStyle =
+    { selector = [ Css.Class Enabled ]
+    , descriptor =
+        [ ("background-color", "#36d")
+        , ("font-weight", "bold")
+        , ("border-radius", "4px")
+        , ("padding", "2px 6px")
         ]
     }
 
