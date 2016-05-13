@@ -2,7 +2,7 @@ module Css exposing
     ( Css
     , Sel (..)
     , Pseudo (..)
-    , Style
+    , Rule
     , Descriptor
     , css
     )
@@ -69,7 +69,7 @@ type Pseudo
 type alias Descriptor = List (String, String)
 
 {-| A selector/descriptor pair. -}
-type alias Style id cls =
+type alias Rule id cls =
     { selector : List (Sel id cls)
     , descriptor : Descriptor
     }
@@ -133,11 +133,11 @@ desc : Descriptor -> String
 desc = concat << List.map (\(k, v) -> concat [k, ":", v, ";"])
 
 {-| Render a style (selector and descriptor) to a string. -}
-style : Style id class -> String
+style : Rule id class -> String
 style s = concat [ sel s.selector, "{", desc s.descriptor, "}" ]
 
 {-| Returns a compiled CSS object with style node and attribute builders. -}
-css : List (Style id cls) -> Css id cls msg
+css : List (Rule id cls) -> Css id cls msg
 css styles =
     { node = node "style" [] [ text <| concat <| List.map style styles ]
     , id = id << toString

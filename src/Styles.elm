@@ -26,7 +26,7 @@ css : Css.Css Id Class msg
 css = Css.css styles
 
 {-| All the styles in the CSS. -}
-styles : List (Css.Style Id Class)
+styles : List (Css.Rule Id Class)
 styles = 
     [ bodyStyle
     , headerStyle
@@ -42,7 +42,7 @@ styles =
     ]
 
 {-| Fullscreen body styles. -}
-bodyStyle : Css.Style Id Class
+bodyStyle : Css.Rule Id Class
 bodyStyle =
     { selector = [ Css.Element "body" ]
     , descriptor =
@@ -52,7 +52,7 @@ bodyStyle =
     }
     
 {-| The header styles. -}
-headerStyle : Css.Style Id Class
+headerStyle : Css.Rule Id Class
 headerStyle =
     { selector = [ Css.Id Header ]
     , descriptor =
@@ -71,7 +71,7 @@ headerStyle =
     }
 
 {-| Page title information. -}
-logoStyle : Css.Style Id Class
+logoStyle : Css.Rule Id Class
 logoStyle =
     { selector = [ Css.Id Logo ]
     , descriptor =
@@ -83,7 +83,7 @@ logoStyle =
     }
 
 {-| Toggle options for user. -}
-controlsStyle : Css.Style Id Class
+controlsStyle : Css.Rule Id Class
 controlsStyle =
     { selector = [ Css.Id Controls ]
     , descriptor =
@@ -96,7 +96,7 @@ controlsStyle =
     }
 
 {-| Loading gif. -}
-loaderStyle : Css.Style Id Class
+loaderStyle : Css.Rule Id Class
 loaderStyle =
     { selector = [ Css.Id Loader ]
     , descriptor =
@@ -107,7 +107,7 @@ loaderStyle =
     }
 
 {-| The content body. -}
-contentStyle : Css.Style Id Class
+contentStyle : Css.Rule Id Class
 contentStyle =
     { selector = [ Css.Id Content ]
     , descriptor =
@@ -117,7 +117,7 @@ contentStyle =
     }
 
 {-| A story div style. -}
-storyStyle : Css.Style Id Class
+storyStyle : Css.Rule Id Class
 storyStyle =
     { selector = [ Css.Class Story ]
     , descriptor =
@@ -130,7 +130,7 @@ storyStyle =
     }
 
 {-| The title of the story. -}
-titleStyle : Css.Style Id Class
+titleStyle : Css.Rule Id Class
 titleStyle =
     { selector = [ Css.Class Title ]
     , descriptor =
@@ -144,7 +144,7 @@ titleStyle =
     }
 
 {-| The posted by span. -}
-infoStyle : Css.Style Id Class
+infoStyle : Css.Rule Id Class
 infoStyle =
     { selector = [ Css.Class Info ]
     , descriptor =
@@ -154,7 +154,7 @@ infoStyle =
     }
 
 {-| All links. -}
-linkStyle : Css.Style Id Class
+linkStyle : Css.Rule Id Class
 linkStyle =
     { selector = [ Css.Element "a" ]
     , descriptor =
@@ -164,7 +164,7 @@ linkStyle =
     }
 
 {-| Link style when hovering over it. -}
-linkHoverStyle : Css.Style Id Class
+linkHoverStyle : Css.Rule Id Class
 linkHoverStyle =
     { selector = [ Css.Pseudo [ Css.Hover ] (Css.Element "a") ]
     , descriptor =
