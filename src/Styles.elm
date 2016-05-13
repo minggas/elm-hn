@@ -1,9 +1,17 @@
 module Styles exposing
-    ( Class(..)
+    ( Id(..)
+    , Class(..)
     , css
     )
 
 import Css
+
+{-| CSS selector ids. -}
+type Id
+    = Header
+    | Logo
+    | Controls
+    | Content
 
 {-| CSS selector classes. -}
 type Class
@@ -13,38 +21,82 @@ type Class
     | Comment
 
 {-| Final, rendered CSS <style> tag. -}
-css : Css.Css x Class msg
+css : Css.Css Id Class msg
 css = Css.css styles
 
 {-| All the styles in the CSS. -}
-styles : List (Css.Style a Class)
+styles : List (Css.Style Id Class)
 styles = 
-    [ storyStyle
+    [ headerStyle
+    , logoStyle
+    , contentStyle
+    , storyStyle
     , titleStyle
     , infoStyle
     , linkStyle
     , linkHoverStyle
     ]
+    
+{-| The header styles. -}
+headerStyle : Css.Style Id Class
+headerStyle =
+    { selector = [ Css.Id Header ]
+    , descriptor =
+        [ ("margin", "0")
+        , ("display", "inline-block")
+        , ("position", "fixed")
+        , ("top", "0")
+        , ("left", "0")
+        , ("width", "100%")
+        , ("height", "50px")
+        , ("overflow", "hidden")
+        , ("background-color", "#63d")
+        , ("color", "#fff")
+        ]
+    }
+
+logoStyle : Css.Style Id Class
+logoStyle =
+    { selector = [ Css.Id Logo ]
+    , descriptor =
+        [ ("display", "inline-block")
+        , ("vertical-align", "middle")
+        , ("font-family", "Droid Sans, sans-serif")
+        , ("font-size", "22px")
+        ]
+    }
+
+{-| The content body. -}
+contentStyle : Css.Style Id Class
+contentStyle =
+    { selector = [ Css.Id Content ]
+    , descriptor =
+        [ ("margin-top", "50px")
+        , ("background-color", "#333")
+        ]
+    }
 
 {-| A story div style. -}
-storyStyle : Css.Style a Class
+storyStyle : Css.Style Id Class
 storyStyle =
     { selector = [ Css.Class Story ]
     , descriptor =
         [ ("margin", "0")
         , ("padding", "12px 30px")
-        , ("background-color", "#fff")
-        , ("font-family", "Arial, Helvetica")
-        , ("border-top", "1px solid #eee")
+        , ("background-color", "#333")
+        , ("color", "#ddd")
+        , ("font-family", "Droid Sans, Helvetica, sans-serif")
+        , ("border-top", "1px solid #444")
         ]
     }
 
 {-| The title of the story. -}
-titleStyle : Css.Style a Class
+titleStyle : Css.Style Id Class
 titleStyle =
     { selector = [ Css.Class Title ]
     , descriptor =
         [ ("font-size", "16px")
+        , ("font-weight", "bold")
         , ("margin-bottom", "6px")
         , ("overflow", "hidden")
         , ("text-overflow", "ellipsis")
@@ -53,7 +105,7 @@ titleStyle =
     }
 
 {-| The posted by span. -}
-infoStyle : Css.Style a Class
+infoStyle : Css.Style Id Class
 infoStyle =
     { selector = [ Css.Class Info ]
     , descriptor =
@@ -63,7 +115,7 @@ infoStyle =
     }
 
 {-| All links. -}
-linkStyle : Css.Style a Class
+linkStyle : Css.Style Id Class
 linkStyle =
     { selector = [ Css.Element "a" ]
     , descriptor =
@@ -73,7 +125,7 @@ linkStyle =
     }
 
 {-| Link style when hovering over it. -}
-linkHoverStyle : Css.Style a Class
+linkHoverStyle : Css.Style Id Class
 linkHoverStyle =
     { selector = [ Css.Pseudo [ Css.Hover ] (Css.Element "a") ]
     , descriptor =
