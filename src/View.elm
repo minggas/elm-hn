@@ -16,7 +16,7 @@ viewStories css stories = List.map (viewStory css) stories
 {-| Render a single Story to HTML. -}
 viewStory : Css x Class msg -> Story -> Html msg
 viewStory css story =
-    div [ class "Story" ]
+    div [ css.class Styles.Story ]
         [ div [ css.class Title ] [ title story.item ]
         , div [ css.class Info ] [ info story.item, comments story.item ]
         ]
