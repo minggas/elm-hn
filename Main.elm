@@ -44,12 +44,24 @@ view model =
     let content =
         div [ css.id Content ] (viewStories css <| rankedStories model.stories)
     in
-    div [] [ css.node, header, content ]
+    div [] [ css.node, header model, content ]
 
-header : Html Msg
-header =
+{-| Renders the title header and controls. -}
+header : Model -> Html Msg
+header model =
     div [ css.id Header ]
         [ span [ css.id Logo ] [ text "Hacker News Troll" ]
+        , span [ css.id Controls ]
+            [ if model.view == Top then
+                b [] [ text "TOP" ]
+              else
+                a [ href "#", onClick ShowTop ] [ text "TOP" ]
+            , text " | "
+            , if model.view == Newest then
+                b [] [ text "NEW" ]
+              else
+                a [ href "#", onClick ShowNewest ] [ text "NEW" ]
+            ]
         ] 
 
 {-| Every minute, get the top 30 stories from HN. -}

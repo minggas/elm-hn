@@ -29,6 +29,7 @@ styles : List (Css.Style Id Class)
 styles = 
     [ headerStyle
     , logoStyle
+    , controlsStyle
     , contentStyle
     , storyStyle
     , titleStyle
@@ -52,17 +53,33 @@ headerStyle =
         , ("overflow", "hidden")
         , ("background-color", "#63d")
         , ("color", "#fff")
+        , ("font-weight", "bold")
         ]
     }
 
+{-| Page title information. -}
 logoStyle : Css.Style Id Class
 logoStyle =
     { selector = [ Css.Id Logo ]
     , descriptor =
-        [ ("display", "inline-block")
-        , ("vertical-align", "middle")
-        , ("font-family", "Droid Sans, sans-serif")
+        [ ("font-family", "Droid Sans, sans-serif")
         , ("font-size", "22px")
+        , ("position", "relative")
+        , ("left", "30px")
+        , ("top", "14px")
+        ]
+    }
+
+{-| Toggle options for user. -}
+controlsStyle : Css.Style Id Class
+controlsStyle =
+    { selector = [ Css.Id Controls ]
+    , descriptor =
+        [ ("font-family", "Consolas, monospace")
+        , ("font-size", "18px")
+        , ("position", "fixed")
+        , ("right", "30px")
+        , ("top", "16px")
         ]
     }
 
