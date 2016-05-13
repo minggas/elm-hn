@@ -1,5 +1,7 @@
 # HN Trolling in Elm
 
+***NOTE: This README/tutorial was written for Elm 0.16. While the repo itself has been updated to run with Elm 0.17, this tutorial has not (but will be).***
+
 This is a simple [Hacker News](http://news.ycombinator.com/) reader written in [Elm](http://elm-lang.org/). It was used as a simple "Learning Elm" app for myself, but others may learn from it as well. 
 
 This README is here to explain the modules and the overall architecture as well as introduce Elm to newcomers with a progressive approach. If you see something wrong or have suggestions on how to improve the code or this README, please create an issue or email me. ;-)
