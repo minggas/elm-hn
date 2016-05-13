@@ -11,6 +11,7 @@ type Id
     = Header
     | Logo
     | Controls
+    | Loader
     | Content
 
 {-| CSS selector classes. -}
@@ -27,9 +28,11 @@ css = Css.css styles
 {-| All the styles in the CSS. -}
 styles : List (Css.Style Id Class)
 styles = 
-    [ headerStyle
+    [ bodyStyle
+    , headerStyle
     , logoStyle
     , controlsStyle
+    , loaderStyle
     , contentStyle
     , storyStyle
     , titleStyle
@@ -37,6 +40,16 @@ styles =
     , linkStyle
     , linkHoverStyle
     ]
+
+{-| Fullscreen body styles. -}
+bodyStyle : Css.Style Id Class
+bodyStyle =
+    { selector = [ Css.Element "body" ]
+    , descriptor =
+        [ ("background-color", "#333")
+        , ("font-family", "Droid Sans, sans-serif")
+        ]
+    }
     
 {-| The header styles. -}
 headerStyle : Css.Style Id Class
@@ -62,8 +75,7 @@ logoStyle : Css.Style Id Class
 logoStyle =
     { selector = [ Css.Id Logo ]
     , descriptor =
-        [ ("font-family", "Droid Sans, sans-serif")
-        , ("font-size", "22px")
+        [ ("font-size", "22px")
         , ("position", "relative")
         , ("left", "30px")
         , ("top", "14px")
@@ -80,6 +92,17 @@ controlsStyle =
         , ("position", "fixed")
         , ("right", "30px")
         , ("top", "16px")
+        ]
+    }
+
+{-| Loading gif. -}
+loaderStyle : Css.Style Id Class
+loaderStyle =
+    { selector = [ Css.Id Loader ]
+    , descriptor =
+        [ ("position", "fixed")
+        , ("right", "30px")
+        , ("bottom", "10px")
         ]
     }
 
@@ -102,7 +125,6 @@ storyStyle =
         , ("padding", "12px 30px")
         , ("background-color", "#333")
         , ("color", "#ddd")
-        , ("font-family", "Droid Sans, Helvetica, sans-serif")
         , ("border-top", "1px solid #444")
         ]
     }
