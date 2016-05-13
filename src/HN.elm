@@ -1,8 +1,8 @@
 module HN exposing (..)
 
 import Json.Decode as Json exposing ((:=))
-import Http
-import Task exposing (andThen)
+import Http exposing (Error)
+import Task exposing (Task, andThen, sequence)
 
 {-| End-points for the HN API and item comment pages. -}
 v0 = "https://hacker-news.firebaseio.com/v0/"
@@ -20,15 +20,20 @@ type alias Item =
     , kids : List Int
     }
 
-{-| Task to download the last N Items on HN. -}
-topStories : Int -> Task.Task Http.Error (List Item)
-topStories n =
-    let url = v0 ++ "topstories.json" in
-    Http.get (Json.list Json.int) url
-        `andThen` (Task.sequence << List.map item << List.take n)
+{-| Download the most recent N items from a list if IDs. -}
+items : Int -> Task Error (List Int) -> Task Error (List Item)
+items n task = task `andThen` (sequence << List.map item << List.take n)
+
+{-| Task to download the top Item IDs on HN. -}
+top : Task Error (List Int)
+top = Http.get (Json.list Json.int) <| v0 ++ "topstories.json"
+
+{-| Task to download the newest Item IDs on HN. -}
+new : Task Error (List Int)
+new = Http.get (Json.list Json.int) <| v0 ++ "newstories.json"
 
 {- Task to download an individual Item from HN. -}
-item : Int -> Task.Task Http.Error Item
+item : Int -> Task Error Item
 item id = Http.get decoder (v0 ++ "item/" ++ (toString id) ++ ".json")
 
 {-| Returns either an Item's external URL or its comments page. -}

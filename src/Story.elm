@@ -1,7 +1,7 @@
 module Story exposing (..)
 
-import Http
-import Task
+import Http exposing (Error)
+import Task exposing (Task)
 import Time
 
 import HN exposing (..)
@@ -13,8 +13,8 @@ type alias Story =
     }
 
 {-| A filtered list of HN Items that are ranked by time. -}
-stories : Int -> Time.Time -> Task.Task Http.Error (List Story)
-stories n time = Task.map (List.filterMap (story time)) (HN.topStories n)
+stories : Int -> Time.Time -> Task Error (List Int) -> Task Error (List Story)
+stories n time ids = Task.map (List.filterMap (story time)) (HN.items n ids)
 
 {-| Filters stories from a list of HN Items and ranks them. -}
 filterStories : Time.Time -> List HN.Item -> List Story
