@@ -1,7 +1,7 @@
 module Css exposing
-    ( Css
-    , Sel (..)
-    , Pseudo (..)
+    ( Stylesheet
+    , Sel(..)
+    , Pseudo(..)
     , Rule
     , Descriptor
     , css
@@ -12,7 +12,7 @@ import Html.Attributes exposing (id, class)
 import String exposing (concat, join)
 
 {-| Compiled CSS styles -}
-type alias Css id cls msg =
+type alias Stylesheet id cls msg =
     { node : Html msg
     , id : id -> Attribute msg
     , class : cls -> Attribute msg
@@ -132,14 +132,20 @@ sel =
 desc : Descriptor -> String
 desc = concat << List.map (\(k, v) -> concat [k, ":", v, ";"])
 
-{-| Render a style (selector and descriptor) to a string. -}
-style : Rule id class -> String
-style s = concat [ sel s.selector, "{", desc s.descriptor, "}" ]
+{-| Render a rule (selector and descriptor) to a string. -}
+rule : Rule id class -> String
+rule s = concat [ sel s.selector, "{", desc s.descriptor, "}" ]
+
+{-| Render @import directives. -}
+importUrl : String -> String
+importUrl url = concat [ "@import url(", url, ");" ]
 
 {-| Returns a compiled CSS object with style node and attribute builders. -}
-css : List (Rule id cls) -> Css id cls msg
-css styles =
-    { node = node "style" [] [ text <| concat <| List.map style styles ]
+css : List String -> List (Rule id cls) -> Stylesheet id cls msg
+css urls rules =
+    let imports = concat <| List.map importUrl urls in
+    let styles = concat <| List.map rule rules in
+    { node = node "style" [] [ text <| imports ++ styles ]
     , id = id << toString
     , class = class << toString
     }

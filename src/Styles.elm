@@ -23,25 +23,23 @@ type Class
     | Enabled
 
 {-| Final, rendered CSS <style> tag. -}
-css : Css.Css Id Class msg
-css = Css.css styles
-
-{-| All the styles in the CSS. -}
-styles : List (Css.Rule Id Class)
-styles = 
-    [ bodyStyle
-    , headerStyle
-    , logoStyle
-    , controlsStyle
-    , enabledStyle
-    , loaderStyle
-    , contentStyle
-    , storyStyle
-    , titleStyle
-    , infoStyle
-    , linkStyle
-    , linkHoverStyle
-    ]
+css : Css.Stylesheet Id Class msg
+css =
+    Css.css
+        [ "//fonts.googleapis.com/css?family=Droid+Sans:400,700" ]
+        [ bodyStyle
+        , headerStyle
+        , logoStyle
+        , controlsStyle
+        , enabledStyle
+        , loaderStyle
+        , contentStyle
+        , storyStyle
+        , titleStyle
+        , infoStyle
+        , linkStyle
+        , linkHoverStyle
+        ]
 
 {-| Fullscreen body styles. -}
 bodyStyle : Css.Rule Id Class
@@ -69,6 +67,7 @@ headerStyle =
         , ("background-color", "#222")
         , ("color", "#ddd")
         , ("font-weight", "bold")
+        , ("border-bottom", "1px solid #000")
         ]
     }
 

@@ -10,11 +10,11 @@ import Story exposing (..)
 import Styles exposing (..)
 
 {-| Render a list of Stories to HTML. -}
-viewStories : Css x Class msg -> List Story -> List (Html msg)
+viewStories : Stylesheet x Class msg -> List Story -> List (Html msg)
 viewStories css stories = List.map (viewStory css) stories
 
 {-| Render a single Story to HTML. -}
-viewStory : Css x Class msg -> Story -> Html msg
+viewStory : Stylesheet x Class msg -> Story -> Html msg
 viewStory css story =
     div [ css.class Styles.Story ]
         [ div [ css.class Title ] [ title story.item ]
