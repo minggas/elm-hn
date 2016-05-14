@@ -109,7 +109,7 @@ The first part of The Elm Architecture that you need to fully understand is the 
 type Cmd msg
 ```
 
-What's important to know about `Cmd` is that it is simply a type wrapper for The Elm Architecture to preserve type safety. Internally, TEM (the Elm Architecture) doesn't know what type you'll use for your update messages, but it will need to pass them around safely. It does this by wrapping it with `Cmd`.
+What's important to know about `Cmd` is that it is simply a type wrapper for The Elm Architecture to preserve type safety. Internally, TEA (the Elm Architecture) doesn't know what type you'll use for your update messages, but it will need to pass them around safely. It does this by wrapping it with `Cmd`.
 
 To put this into practice, let's create an update message for our application that will change the message being displayed to a different string.
 
@@ -134,7 +134,7 @@ update msg model =
     (msg, Cmd.none)
 ```
 
-Finally, we need to create a `Cmd` that TEM can receive, unbox, and pass the `Msg` to our `update` function. In order to create a `Cmd`, we need to perform a [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Task). So, let's create a `Task` that will send `Cmd Msg` to TEM, which will pass on the `Msg` to our `update` function...
+Finally, we need to create a `Cmd` that TEA can receive, unbox, and pass the `Msg` to our `update` function. In order to create a `Cmd`, we need to perform a [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Task). So, let's create a `Task` that will send `Cmd Msg` to TEA, which will pass on the `Msg` to our `update` function...
 
 ```elm
 import Task
@@ -162,7 +162,7 @@ changeModel msg =
     Task.perform onError onSuccess (Task.succeed msg)
 ```
 
-Now, in the `init` of our application, we create an initial `Cmd` for our `Msg` so TEM can properly route it to our `update` function, which changes the `Model`. And, when we run the app, we can see that it works.
+Now, in the `init` of our application, we create an initial `Cmd` for our `Msg` so TEA can properly route it to our `update` function, which changes the `Model`. And, when we run the app, we can see that it works.
 
 ### More Complex Messages
 
@@ -204,16 +204,16 @@ And, just as it should, the `model` doesn't change.
 Let's recap what we've discovered...
 
 * We initial our program with an initial `Model` and `Cmd`
-* A `Cmd` is a type wrapper so TEM can (safely) route our own `Msg` values to `update`
+* A `Cmd` is a type wrapper so TEA can (safely) route our own `Msg` values to `update`
 * `Cmd`s can be created by performing tasks
 * Tasks can fail or succeed
 * The program must transform task results into `Msg` values
 
 ### Subscriptions
 
-Besides `Cmd`, the only other way of getting TEM to send a `Msg` to our `update` function is with a `Sub`scription to an event. There are many different events that can be subscribed to (mouse, keyboard, time, ...). And these are all done via the `subscriptions` function of your program.
+Besides `Cmd`, the only other way of getting TEA to send a `Msg` to our `update` function is with a `Sub`scription to an event. There are many different events that can be subscribed to (mouse, keyboard, time, ...). And these are all done via the `subscriptions` function of your program.
 
-Every time your `model` is updated, TEM calls the `subscriptions` function to ask the application for a list of subscriptions it should listen to, and `update` with.
+Every time your `model` is updated, TEA calls the `subscriptions` function to ask the application for a list of subscriptions it should listen to, and `update` with.
 
 As an example, let's create a simple subscription (`Sub`) that updates our `Model` with the current time about every second.
 
@@ -234,13 +234,13 @@ subscriptions model =
     Time.every Time.second (Just << toString)
 ```
 
-From these modifications, we can see that based on the `model` (ignored in this instance), we create a subscription to an event (`Time.every Time.second`) and give it a function (`Just << toString`) that can convert the event parameter (time) into a `Msg`. The `Msg` is boxed into a `Sub` (just like a `Cmd`), which TEM can then route to the `update` function.
+From these modifications, we can see that based on the `model` (ignored in this instance), we create a subscription to an event (`Time.every Time.second`) and give it a function (`Just << toString`) that can convert the event parameter (time) into a `Msg`. The `Msg` is boxed into a `Sub` (just like a `Cmd`), which TEA can then route to the `update` function.
 
 *Note: if you have many events you'd like to subscribe to, use [`Sub.batch`](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Platform-Sub#batch) to aggregate multiple subscriptions into a single subscription.*
 
 ### Summarizing The Elm Architecture
 
-* TEM is *the* method of building applications in Elm
+* TEA is *the* method of building applications in Elm
 * It wraps your program in the `Model`, `View`, `Update` pattern
 * You initialize the program with the `Model`
 * You provide the program with a function to render the `Model` (the `View`)
@@ -249,7 +249,7 @@ From these modifications, we can see that based on the `model` (ignored in this 
 * A `Cmd` is the result of a `Task`
 * A `Sub` is the result of an event subscription
 * You transform the results of task and subscriptions into your message type
-* The `Cmd` and `Sub` are used by TEM to route your message to the `Update`
+* The `Cmd` and `Sub` are used by TEA to route your message to the `Update`
 
 That's it!
 
@@ -257,6 +257,6 @@ It's very important that you understand this moving forward. Once it "clicks", E
 
 ## Putting it All Together
 
-Next is a walk-through of using TEM to create a very simple Hacker News reader. It won't have all the features of the reader in this repo, but it will get you started and you should be able to use the source code in this repository to take your version to the next level.
+Next is a walk-through of using TEA to create a very simple Hacker News reader. It won't have all the features of the reader in this repo, but it will get you started and you should be able to use the source code in this repository to take your version to the next level.
 
 Coming soon... 
