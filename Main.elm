@@ -43,25 +43,25 @@ main = App.program
 view : Model -> Html Msg
 view model =
     div []
-        [ css.node
+        [ stylesheet.node
         , header model
-        , div [ css.id Content ] (viewStories css model.stories)
+        , div [ stylesheet.id Content ] (viewStories stylesheet model.stories)
         , loader model
         ]
 
 {-| Renders the title header and controls. -}
 header : Model -> Html Msg
 header model =
-    div [ css.id Header ]
-        [ span [ css.id Logo ] [ text "Hacker News Troll" ]
-        , span [ css.id Controls ]
+    div [ stylesheet.id Header ]
+        [ span [ stylesheet.id Logo ] [ text "Hacker News Troll" ]
+        , span [ stylesheet.id Controls ]
             [ if model.view == Top then
-                b [ css.class Enabled ] [ text "Top Stories" ]
+                b [ stylesheet.class Enabled ] [ text "Top Stories" ]
               else
                 a [ href "#", onClick ShowTop ] [ text "Top Stories" ]
             , text " • "
             , if model.view == Newest then
-                b [ css.class Enabled ] [ text "New" ]
+                b [ stylesheet.class Enabled ] [ text "New" ]
               else
                 a [ href "#", onClick ShowNewest ] [ text "New" ]
             ]
@@ -70,7 +70,7 @@ header model =
 {-| If we're currently updating the story list, indicate with a gif. -}
 loader : Model -> Html Msg
 loader model =
-    div [ css.id Loader ]
+    div [ stylesheet.id Loader ]
         <| if model.loading then [ img [ src "loader.gif" ] [] ] else []
 
 {-| Every minute, get the top 30 stories from HN. -}

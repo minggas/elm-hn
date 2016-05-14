@@ -1,10 +1,10 @@
 module Styles exposing
     ( Id(..)
     , Class(..)
-    , css
+    , stylesheet
     )
 
-import Css
+import Css exposing (..)
 
 {-| CSS selector ids. -}
 type Id
@@ -23,14 +23,15 @@ type Class
     | Enabled
 
 {-| Final, rendered CSS <style> tag. -}
-css : Css.Stylesheet Id Class msg
-css =
-    Css.css
+stylesheet : Stylesheet Id Class msg
+stylesheet =
+    css
         [ "//fonts.googleapis.com/css?family=Droid+Sans:400,700" ]
         [ bodyStyle
         , headerStyle
         , logoStyle
         , controlsStyle
+        , buttonStyle
         , enabledStyle
         , loaderStyle
         , contentStyle
@@ -42,9 +43,9 @@ css =
         ]
 
 {-| Fullscreen body styles. -}
-bodyStyle : Css.Rule Id Class
+bodyStyle : Rule Id Class
 bodyStyle =
-    { selector = [ Css.Element "body" ]
+    { selectors = [ Type "body" ]
     , descriptor =
         [ ("background-color", "#333")
         , ("font-family", "Droid Sans, sans-serif")
@@ -52,9 +53,9 @@ bodyStyle =
     }
     
 {-| The header styles. -}
-headerStyle : Css.Rule Id Class
+headerStyle : Rule Id Class
 headerStyle =
-    { selector = [ Css.Id Header ]
+    { selectors = [ Id Header ]
     , descriptor =
         [ ("margin", "0")
         , ("display", "inline-block")
@@ -72,9 +73,9 @@ headerStyle =
     }
 
 {-| Page title information. -}
-logoStyle : Css.Rule Id Class
+logoStyle : Rule Id Class
 logoStyle =
-    { selector = [ Css.Id Logo ]
+    { selectors = [ Id Logo ]
     , descriptor =
         [ ("font-size", "22px")
         , ("position", "relative")
@@ -83,9 +84,10 @@ logoStyle =
         ]
     }
     
-controlsStyle : Css.Rule Id Class
+{-| User options section. -}
+controlsStyle : Rule Id Class
 controlsStyle =
-    { selector = [ Css.Id Controls ]
+    { selectors = [ Id Controls ]
     , descriptor =
         [ ("font-size", "18px")
         , ("font-weight", "200")
@@ -95,10 +97,20 @@ controlsStyle =
         ]
     }
 
+{-| Control links. -}
+buttonStyle : Rule Id Class
+buttonStyle =
+    { selectors = [ Descendant (Type "a") (Id Header) ]
+    , descriptor =
+        [ ("color", "#aaa" )
+        , ("text-decoration", "none")
+        ]
+    }
+
 {-| Toggle options for user. -}
-enabledStyle : Css.Rule Id Class
+enabledStyle : Rule Id Class
 enabledStyle =
-    { selector = [ Css.Class Enabled ]
+    { selectors = [ Class Enabled ]
     , descriptor =
         [ ("background-color", "#36d")
         , ("font-weight", "bold")
@@ -108,9 +120,9 @@ enabledStyle =
     }
 
 {-| Loading gif. -}
-loaderStyle : Css.Rule Id Class
+loaderStyle : Rule Id Class
 loaderStyle =
-    { selector = [ Css.Id Loader ]
+    { selectors = [ Id Loader ]
     , descriptor =
         [ ("position", "fixed")
         , ("right", "30px")
@@ -119,9 +131,9 @@ loaderStyle =
     }
 
 {-| The content body. -}
-contentStyle : Css.Rule Id Class
+contentStyle : Rule Id Class
 contentStyle =
-    { selector = [ Css.Id Content ]
+    { selectors = [ Id Content ]
     , descriptor =
         [ ("margin-top", "50px")
         , ("background-color", "#333")
@@ -129,9 +141,9 @@ contentStyle =
     }
 
 {-| A story div style. -}
-storyStyle : Css.Rule Id Class
+storyStyle : Rule Id Class
 storyStyle =
-    { selector = [ Css.Class Story ]
+    { selectors = [ Class Story ]
     , descriptor =
         [ ("margin", "0")
         , ("padding", "12px 30px")
@@ -142,9 +154,9 @@ storyStyle =
     }
 
 {-| The title of the story. -}
-titleStyle : Css.Rule Id Class
+titleStyle : Rule Id Class
 titleStyle =
-    { selector = [ Css.Class Title ]
+    { selectors = [ Class Title ]
     , descriptor =
         [ ("font-size", "16px")
         , ("font-weight", "bold")
@@ -156,9 +168,9 @@ titleStyle =
     }
 
 {-| The posted by span. -}
-infoStyle : Css.Rule Id Class
+infoStyle : Rule Id Class
 infoStyle =
-    { selector = [ Css.Class Info ]
+    { selectors = [ Class Info ]
     , descriptor =
         [ ("font-size", "12px")
         , ("color", "#aaa")
@@ -166,9 +178,9 @@ infoStyle =
     }
 
 {-| All links. -}
-linkStyle : Css.Rule Id Class
+linkStyle : Rule Id Class
 linkStyle =
-    { selector = [ Css.Element "a" ]
+    { selectors = [ Descendant (Type "a") (Class Story) ]
     , descriptor =
         [ ("color", "#d73")
         , ("text-decoration", "none")
@@ -176,9 +188,9 @@ linkStyle =
     }
 
 {-| Link style when hovering over it. -}
-linkHoverStyle : Css.Rule Id Class
+linkHoverStyle : Rule Id Class
 linkHoverStyle =
-    { selector = [ Css.Pseudo [ Css.Hover ] (Css.Element "a") ]
+    { selectors = [ Pseudo [Hover] <| Descendant (Type "a") (Class Story) ]
     , descriptor =
         [ ("text-decoration", "underline")
         ]

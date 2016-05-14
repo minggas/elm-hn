@@ -2,30 +2,107 @@ module Css exposing
     ( Stylesheet
     , Sel(..)
     , Pseudo(..)
-    , Rule
     , Descriptor
+    , Rule
     , css
     )
 
+{-| This module is designed to allow you to add type-safe CSS styling
+to your rendered Html via <style> tags. It has basic support for @import
+directives and CSS rules.
+
+Assuming you have types for id and class attributes, you "compile" a
+`Stylesheet` with the `css` function and use the functions returned in
+the `Stylesheet` to generate id and class attributes.
+
+For example:
+
+    type Id = MyId
+    type Class = MyClass
+
+    -- create a couple Css.rules, notice the use of `MyId` and `MyClass`. 
+    rules =
+        [ { selectors = [ Css.Id MyId ]
+          , descriptor = [ ("color", "#63d") ]
+          }
+        , { selectors = [ Css.Class MyClass ]
+          , descriptor = [ ("text-decoration", "underline")
+          }
+        ]
+    
+    -- compile a stylesheet with no @imports and a couple rules
+    stylesheet = Css.css [] rules
+    
+    -- now, create some Html, add the <style> node, and safely use
+    -- your id and class
+    html =
+        div []
+            [ stylesheet.node
+            , div [ stylesheet.id MyId ] [ text "Using MyId" ]
+            , div [ stylesheet.class MyClass ] [ text "Using MyClass" ]
+            ]
+
+# Types
+@docs Stylesheet, Sel, Pseudo, Descriptor, Rule
+
+# Functions
+@docs css
+-}
+
 import Html exposing (..)
 import Html.Attributes exposing (id, class)
-import String exposing (concat, join)
+import String exposing (concat, cons, join)
 
-{-| Compiled CSS styles -}
+{-| A Stylesheet is a "compiled" Html <style> node, as well as functions
+that allow you to safely create Html.Attributes for the id and class of
+your tags. It is returned by the `css` function.
+-}
 type alias Stylesheet id cls msg =
     { node : Html msg
     , id : id -> Attribute msg
     , class : cls -> Attribute msg
     }
 
-{-| A basic CSS selector. -}
+{-| CSS rule selectors follow the all the selectors found [here](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors)
+except for attribute selectors.
+
+The most common selectors are the Type, Id, and Class selectors. The others
+are combinator selectors or pseudo-class/element selectors. Some examples:
+
+    -- div { ... }
+    Type "div"
+    
+    -- #MyId { ... }
+    Id MyId
+    
+    -- .MyClass { ... }
+    Class MyClass
+    
+    -- div #Content { ... }
+    Descendant (Id Content) (Type "div")
+    
+    -- span > .MyClass { ... }
+    Child (Class MyClass) (Type "span")
+    
+    -- hr ~ p:first-line:first-letter { ... }
+    Pseudo [FirstLine, FirstLetter] <| Sibling (Type "p") (Type "hr")
+
+Take a moment to notice that for combinators, the most specific element being
+styled (what would be last in the selector) appears first in code.
+-}
 type Sel id cls
-    = Element String
+    = Type String
     | Id id
     | Class cls
+    | Descendant (Sel id cls) (Sel id cls)
+    | Child (Sel id cls) (Sel id cls)
+    | Sibling (Sel id cls) (Sel id cls)
+    | Adjacent (Sel id cls) (Sel id cls)
     | Pseudo (List Pseudo) (Sel id cls)
 
-{-| Pseudo CSS selectors and elements. -}
+{-| Pseudo CSS selectors and elements. These are chained together in the
+`Pseudo` selector.
+-}
 type Pseudo
     = Any
     | Default
@@ -65,12 +142,25 @@ type Pseudo
     | Selection
     | Backdrop
 
-{-| Key/value style descriptors. -}
+{-| A list of key/value style properties. -}
 type alias Descriptor = List (String, String)
 
-{-| A selector/descriptor pair. -}
+{-| A `Rule` is a list of matching selectors and a descriptor, which is
+a list of key/value style pairs. Each selector is a separate possible match
+for the rule. For example:
+
+    [ Sel.Id MyId
+    , Sel.Class MyClass
+    , Sel.Type "div"
+    , Sel.Sibling (Sel.Type "a") (Sel.Type "hr")
+    ]
+    
+That list of selectors would be the same as the following rule in CSS:
+
+    #MyId, .MyClass, div, a hr { ... }
+-}
 type alias Rule id cls =
-    { selector : List (Sel id cls)
+    { selectors : List (Sel id cls)
     , descriptor : Descriptor
     }
 
@@ -117,35 +207,46 @@ pseudo p =
         Backdrop -> "::backdrop"
 
 {-| Render a selector to a string. -}
-sel : List (Sel id cls) -> String
-sel =
-    let sel' selector =
-        case selector of
-            Element node -> node
-            Id id -> "#" ++ (toString id)
-            Class cls -> "." ++ (toString cls)
-            Pseudo ps s -> concat <| sel' s :: (List.map pseudo ps)
-    in
-    join "," << List.map sel'
+sel : Sel id cls -> String
+sel selector =
+    case selector of
+        Type element -> element
+        Id id -> '#' `cons` (toString id)
+        Class cls -> '.' `cons` (toString cls)
+        Descendant s1 s2 -> join " " [sel s2, sel s1]
+        Child s1 s2 -> join " > " [sel s2, sel s1]
+        Sibling s1 s2 -> join " ~ " [sel s2, sel s1]
+        Adjacent s1 s2 -> join " + " [sel s2, sel s1]
+        Pseudo ps s -> concat <| sel s :: (List.map pseudo ps)
 
 {-| Render a descriptor to a string. -}
 desc : Descriptor -> String
-desc = concat << List.map (\(k, v) -> concat [k, ":", v, ";"])
+desc =
+    concat << List.map (\(k, v) -> concat [k, ":", v, ";"])
 
-{-| Render a rule (selector and descriptor) to a string. -}
+{-| Render a rule (selectors and descriptor) to a string. -}
 rule : Rule id class -> String
-rule s = concat [ sel s.selector, "{", desc s.descriptor, "}" ]
+rule rule =
+    concat [ join "," (List.map sel rule.selectors), "{", desc rule.descriptor, "}" ]
 
-{-| Render @import directives. -}
+{-| Render a url to an @import directive. -}
 importUrl : String -> String
-importUrl url = concat [ "@import url(", url, ");" ]
+importUrl url =
+    concat [ "@import url(", url, ");" ]
 
-{-| Returns a compiled CSS object with style node and attribute builders. -}
+{-| Compiles a `Stylesheet` if given a list of urls to @import and
+a list of `Rule`s to generate. The `Stylesheet` contains an `Html.node`
+to include in your DOM and functions for generating type-safe id and
+class `Html.Attribute`s.
+-} 
 css : List String -> List (Rule id cls) -> Stylesheet id cls msg
 css urls rules =
-    let imports = concat <| List.map importUrl urls in
-    let styles = concat <| List.map rule rules in
-    { node = node "style" [] [ text <| imports ++ styles ]
+    { node = 
+        node "style" [] 
+            [ text <| 
+                (concat <| List.map importUrl urls) ++
+                (concat <| List.map rule rules)
+            ]
     , id = id << toString
     , class = class << toString
     }
