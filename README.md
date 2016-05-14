@@ -1,283 +1,262 @@
-# HN Trolling in Elm
+# Hacker News Reader in Elm
 
-***NOTE: This README/tutorial was written for Elm 0.16. While the repo itself has been updated to run with Elm 0.17, this tutorial has not (but will be).***
+While the code for the app is freely available (just clone and go...), this README is meant to be a tutorial on how to create a simple application in [Elm](http://elm-lang.org/).
 
-This is a simple [Hacker News](http://news.ycombinator.com/) reader written in [Elm](http://elm-lang.org/). It was used as a simple "Learning Elm" app for myself, but others may learn from it as well. 
+![](https://raw.githubusercontent.com/massung/elm-hn/master/screenshot.PNG)
 
-This README is here to explain the modules and the overall architecture as well as introduce Elm to newcomers with a progressive approach. If you see something wrong or have suggestions on how to improve the code or this README, please create an issue or email me. ;-)
+I assume you have Elm [installed](http://elm-lang.org/install/), your [favorite editor](https://code.visualstudio.com/) configured, and a basic understanding of the Elm syntax (from Haskell or ML). If not, there are other [good tutorials](https://pragmaticstudio.com/elm) introducing you to the syntax.
 
 ## Quickstart
 
-I'll assume you have [Elm](http://elm-lang.org/install/) installed, your [favorite editor](https://code.visualstudio.com/) configured, and a basic understanding of the Elm syntax (from Haskell or ML). If not, there are many other [great tutorials](https://pragmaticstudio.com/elm) out there.
+If all you care about is the application, after cloning the repository, you'll need to download and install all the required modules that are used. This can be done on the command line with `elm package install`. Once the dependencies are installed, you can build the app with `elm make Main.elm`. The `index.html` file should have been created, and you can open it to see the app running.
 
-This page is about learning (fundamentally) how to put together signals and tasks in Elm to do what you want. And how to do so without all the [helper libraries](http://package.elm-lang.org/packages/evancz/start-app/2.0.2/) that most of the examples out there use, and are great once you really understand what's going on under-the-hood, but simply obfuscate until then.
+## Introduction to The Elm Architecture
 
-With that out of the way, once you've cloned this repository, you should be able to simply run the Elm Reactor and see the app running.
+Okay, with the above out of the way, let's dive into making a [Hacker News](http://news.ycombinator.com/) reader from scratch...
+
+### Create a Basic Project
+
+First, create a new project folder. Name it anything you like, `cd` into it, and install the [core Elm package](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/).
+
+    $ elm package install
+
+And you'll need a couple other packages, too...
+
+    $ elm package install elm-lang/html
+    $ elm package install evancz/elm-http
+
+Finally, let's create a simple `Hello, world!` Elm file that we can build, run, and see in the browser.
+
+```elm
+module Main exposing (main)
+
+import Html
+import Html.Attributes
+import Html.App
+
+main =
+    Html.text "Hello, world!"
+```
+
+Save the above file as `Main.elm`, and build is with `elm make Main.elm`. It should successfully compile an `index.html` file that you can open in your browser.
+
+Let's improve the edit-compile-test loop, though, with Elm Reactor, while will auto-compile for us after we make changes and refresh the page.
 
     $ elm reactor
     Listening on http://127.0.0.1:8000/
 
-Now, open your browser to the URL above and click on `Main.elm` to open it to see the latest posts on Hacker News.
+Now, open your browser to the URL. You should see `Main.elm` in a list of files, and your package information + dependencies on the right. Simply click `Main.elm`, and Elm Reactor will recompile and open it. From here, after every change made, simply refresh the page to have it auto-recompile.
 
-From here on, it would be best for you to create a new folder in which you will slowly develop your own version of this app. I like to start small, and grow into the final application.
+Without further adieu...
 
-Also, there are many areas where the code presented below could be significantly shortened using method exposing, function composition, piping, and currying. I've chosen (quite intentionally) to use the long-form of everything so the reader can see *explicitly* what's happening, with no shortcuts being taken. 
+### The Elm Architecture
 
-Taking that approach, without further adieu...
+If you haven't yet skimmed through the [Elm Guide](http://guide.elm-lang.org/), it's worth doing. But, once you have the language basics down, the most important section is [The Elm Architecture](http://guide.elm-lang.org/architecture/index.html). In a nutshell, every Elm application is built around a Model, View, Update pattern. You define the data (Model), how it is rendered (View), and what messages can be sent to the application in order to Update it.
 
-## Let's Start At The Very Beginning...
-
-Step one is to get our version of "Hello, world" up. So, let's create our `Main.elm` file and get something up visible...
+Currently, the `main` function merely returns an `Html.Html.Node`. This is fine if all we want is a static page. But, since we'll want a dynamic page, we need to have it - instead - return a `Html.App.Program`. Let's start with a simple skeleton that still outputs `Hello, world!`.
 
 ```elm
-module Main where
+main : Program Never
+main =
+    Html.App.beginnerProgram
+        { model = "Hello, world!"  
+        , view = Html.text
+        , update = identity
+        }
+```
 
-import Json.Decode exposing ((:=))
-import Html
-import Html.Attributes
-import Http
+Simple enough, but let's take stock of what's happening:
+
+* Our Model (data) is just a string that we'll render.
+* We render it by converting it to an Html text node.
+* The Update function takes the existing model and returns it.
+
+So, while *technically* we're running a "dynamic" `Html.App.Program`, it's not going to do anything special.
+
+### A Closer Look...
+
+While `Html.App.beginnerProgram` wraps some things for us, it doesn't allow us to see what's really going on. So, let's peel back a layer and see where it leads...
+
+```elm
+import Platform.Cmd as Cmd
+import Platform.Sub as Sub
+
+main : Program Never
+main =
+    Html.App.program
+        { init = ( "Hello, world!", Cmd.none )
+        , view = Html.text
+        , update = \msg model -> ( model, Cmd.none )
+        , subscriptions = \model -> Sub.none
+        }
+```
+
+Okay, a lot has changed, but the output is the same...
+
+First, notice that we've imported a couple new modules: `Platform.Cmd` and `Platform.Sub`. These two modules are at the very *heart* of The Elm Architecture's application Update pattern. More on that in a bit...
+
+Next, instead of passing in `model`, we pass in `init`, which consists of both the `Model` and an initial `Cmd` (for which we don't want to use yet).
+
+Also, our `update` function has changed its signature as well. Not only does it take a mysterious `msg` parameter (which we're currently ignoring), but it also returns the `model` and a `Cmd`, just like in `init`.
+
+Finally, there's a `subscriptions`. We'll get back to those later, but for now, we don't want any.
+
+### So What is `Cmd`?
+
+The first part of The Elm Architecture that you need to fully understand is the `Cmd` type. It is [defined](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Platform-Cmd#Cmd) as...
+
+```elm
+type Cmd msg
+```
+
+What's important to know about `Cmd` is that it is simply a type wrapper for The Elm Architecture to preserve type safety. Internally, TEM (the Elm Architecture) doesn't know what type you'll use for your update messages, but it will need to pass them around safely. It does this by wrapping it with `Cmd`.
+
+To put this into practice, let's create an update message for our application that will change the message being displayed to a different string.
+
+```elm
+type alias Model = String
+type alias Msg = String
+```
+
+Next, let's change our `main` definition. First, let's refactor the `update` function. Since our `model` is a `String` and so is our `Msg`, we can just replace the existing `model` with the incoming `Msg`.
+
+```elm
+main =
+    Html.App.program
+        { init = ( "Hello, world!", Cmd.none )
+        , view = Html.text
+        , update = update
+        , subscriptions = \model -> Sub.none
+        }
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    (msg, Cmd.none)
+```
+
+Finally, we need to create a `Cmd` that TEM can receive, unbox, and pass the `Msg` to our `update` function. In order to create a `Cmd`, we need to perform a [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Task). So, let's create a `Task` that will send `Cmd Msg` to TEM, which will pass on the `Msg` to our `update` function...
+
+```elm
 import Task
 
-main : Html.Html
-main = Html.body [] [Html.text "Hello, world!"] 
+type alias Model = String
+type alias Msg = String
+
+main : Program Never
+main =
+    Html.App.program
+        { init = ( "Hello, world!", changeModel "It changed!" )
+        , view = Html.text
+        , update = update
+        , subscriptions = \model -> Sub.none
+        }
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    ( msg, Cmd.none )
+
+changeModel : Msg -> Cmd Msg
+changeModel msg =
+    let onError = identity in
+    let onSuccess = identity in
+    Task.perform onError onSuccess (Task.succeed msg)
 ```
 
-*Note: don't forget to install the HTML and HTTP packages... `elm package install evancz/elm-html` and `elm package install evancz/elm-http`*
+Now, in the `init` of our application, we create an initial `Cmd` for our `Msg` so TEM can properly route it to our `update` function, which changes the `Model`. And, when we run the app, we can see that it works.
 
-## Downloading HN Items
+### More Complex Messages
 
-Next, let's start by downloading all the Hacker News items and simply displaying them. We can do this with the [Hacker News API](https://github.com/HackerNews/API), specifically the `/topstories` route:
+One part glossed over above were the transform functions `onError` and `onSuccess`. For the example, they were both just set to `identity`. This was possible, because the task was generating a `String`, which also happens to be the same data type as our `Msg`. But, usually that won't be the case. Let's modify our `Msg` data type so that instead of a `String`, let's make it a `Maybe`.
 
 ```elm
--- the topstories route
-topStoriesUrl = "https://hacker-news.firebaseio.com/v0/topstories.json"
-
--- create a task to download the top stories on hacker news
-topStories : Task.Task Http.Error String
-topStories = Http.getString topStoriesUrl
+type alias Msg = Maybe String
 ```
 
-This required creating a [Task](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Task). The task runs in the background, and - upon completion - will either produce an error or a string: the body of the response. But, it is only a Task *object*; it doesn't run simply by existing. Instead, a [port](http://elm-lang.org/guide/reactivity#tasks) is used to run a Task. So, let's create a port to run it.
+Now, our `update` function needs to understand that *maybe* (ha!) the `Msg` doesn't have anything for us...
 
 ```elm
--- run the task
-port latest : Task.Task Http.Error String
-port latest = topStories
+update msg model =
+    case msg of
+        Just newModel -> ( newModel, Cmd.none )
+        Nothing -> ( model, Cmd.none )
 ```
 
-*Note: there is a lot more to ports than just running tasks, but for now, we'll leave it as just a way to ask Elm to do something for us.*
-
-Okay. We now have a simple skeleton: a main function that produces our HTML output, a task to download the top stories from Hacker News, and a port that runs the task.
-
-So, how do we get the results of the task into our HTML?
-
-Answer: [Signals](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Signal). 
-
-## Signaling Values
-
-The Elm definition of a Signal is "...a value that changes over time." And - as it turns out - our background Task is exactly that: a value that will either be an Http.Error or a String, but "later".
-
-We need a method of getting the value that is returned from the Task to the `main` function so it can be rendered. This is done by creating a [Signal Mailbox](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Signal#Mailbox). 
-
-A Mailbox has a Signal, as well as an Address, which is used to send value updates to the Signal. Other code can then listen for the Signal to change and execute code on it.
-
-Let's start by creating a mailbox to write to.
+Last, our `changeModel` function needs to take a `String` and transform the result of the `Task` into a `Msg`.
 
 ```elm
--- a mailbox for all the latest hacker news items
-items : Signal.Mailbox String
-items = Signal.mailbox ""
+changeModel : String -> Cmd Msg
+changeModel s =
+    Task.perform (\_ -> Nothing) Just (Task.succeed s)
 ```
 
-Now, we need to send the response body gotten from the Task and send it to the mailbox. First, let's make a function that writes the response body to the mailbox...
+Excellent! If we run, we should see everything still works.
+
+Just for kicks, let's make sure it does the right thing if the task fails. We'll do this by creating a `Task` that we know will fail.
 
 ```elm
--- update the items with the latest response
-updateItems : String -> Task.Task a ()
-updateItems body = Signal.send items.address body
+    Task.perform (\_ -> Nothing) Just (Task.fail 0)
 ```
 
-Next, let's modify the `latest` port to call `updateItems` after having downloaded the top stories.
+And, just as it should, the `model` doesn't change.
+
+### Quick Summary
+
+Let's recap what we've discovered...
+
+* We initial our program with an initial `Model` and `Cmd`
+* A `Cmd` is a type wrapper so TEM can (safely) route our own `Msg` values to `update`
+* `Cmd`s can be created by performing tasks
+* Tasks can fail or succeed
+* The program must transform task results into `Msg` values
+
+### Subscriptions
+
+Besides `Cmd`, the only other way of getting TEM to send a `Msg` to our `update` function is with a `Sub`scription to an event. There are many different events that can be subscribed to (mouse, keyboard, time, ...). And these are all done via the `subscriptions` function of your program.
+
+Every time your `model` is updated, TEM calls the `subscriptions` function to ask the application for a list of subscriptions it should listen to, and `update` with.
+
+As an example, let's create a simple subscription (`Sub`) that updates our `Model` with the current time about every second.
 
 ```elm
-port latest : Task.Task Http.Error ()
-port latest : topStories `Task.andThen` updateItems
+import Time
+
+main : Program Never
+main =
+    Html.App.program
+        { init = ( "Hello, world!", changeModel "It changed!" )
+        , view = Html.text
+        , update = update
+        , subscriptions = subscriptions
+        }
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Time.every Time.second (Just << toString)
 ```
 
-*Note: if you aren't familiar with the `` `...` `` syntax in Elm, it's simply a way of using a 2-arity function as an infix operator. The above could also have been written `Task.andThen topStories updateItems`.* 
+From these modifications, we can see that based on the `model` (ignored in this instance), we create a subscription to an event (`Time.every Time.second`) and give it a function (`Just << toString`) that can convert the event parameter (time) into a `Msg`. The `Msg` is boxed into a `Sub` (just like a `Cmd`), which TEM can then route to the `update` function.
 
-## Responding to Signals
+*Note: if you have many events you'd like to subscribe to, use [`Sub.batch`](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Platform-Sub#batch) to aggregate multiple subscriptions into a single subscription.*
 
-Let's summarize where we are...
+### Summarizing The Elm Architecture
 
-* We have a main function that returns HTML
-* We created a Task that downloads top stories from Hacker News
-* A mailbox is used to receive updates to a Signal
-* A port runs the Task and then sends the response to the mailbox
-
-All that should be left to do is wait for the Signal in the mailbox to change and then update the HTML accordingly. And this is done by using the [Signal.map](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Signal#map) function. Let's update `main` to do so...
-
-```elm
-main : Signal Html.Html
-main = Signal.map (\body -> Html.body [] [Html.text body]) items.signal
-```
-
-Now, if you refresh `Main.elm` in your browser, you should have a blank page, which quickly updates to a JSON list of IDs, each of which corresponds to a Hacker News item.
-
-All this in ~25 lines of code. Not too shabby. But we're far from done.
-
-## Parsing JSON
-
-Currently, we're just displaying the response body as a string. But, that body needs to be parsed into the list of IDs so each item can be downloaded in a task. So, instead of the `items` Mailbox being a String, let's make it a list of integer IDs.
-
-```elm
-items : Signal.Mailbox (List Int)
-items = Signal.mailbox []
-```
-
-And, when we send the response body to the mailbox, we cannot send a string, we must update the items with a list of IDs.
-
-```elm
-updateItems : List Int -> Task.Task a ()
-updateItems ids = Signal.send items.address ids
-```
-
-Of course, this means that the `topStories` cannot return a String either, but rather must parse the response body and decode it. Luckily for us, the `Http` module has a function to do this for us as long as we pass it a [Json decoder](http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Json-Decode) to use.
-
-```elm
-topStories : Task.Task Http.Error (List Int)
-topStories = Http.get (Json.Decode.list Json.Decode.int) topStoriesUrl
-```
-
-Finally, the Signal we're watching in `main` isn't producing a String any more, and therefor must be converted into one.
-
-```elm
-main : Signal Html.Html
-main = Signal.map (\ids -> Html.body [] [Html.text (toString ids)]) items.signal
-```
-
-Now the body of the response is being parsed and the page should still display exactly the same way.
-
-## Downloading Items
-
-The next step is to actually download the individual Hacker News items from the list of IDs we've gotten. Let's quickly define a [record](http://elm-lang.org/docs/syntax#records) for each item to decode into.
-
-```elm
--- a hacker news item
-type alias Item =
-    { id : Int
-    , kind : String
-    , title : String
-    , url : Maybe String
-    }
-```
-
-At this point we have to download the individual items from the list of IDs. To do this, we have two options available to us:
-
-1. We can chain off the Task, creating a new Task for each ID or
-2. Wait on the `item` Mailbox and create a new Signal with the final Items
-
-Both of these are possible, but for this tutorial we'll go with option 1 (leaving option 2 as an exercise for the reader).
-
-Now that we've decided on a course, the first step is to update the type signatures from `List Int` to `List Item` - the final value that should end up in the Mailbox.
-
-```elm
--- update the items with the latest response
-updateItems : List Item -> Task.Task a ()
-updateItems xs = Signal.send items.address xs
-```
-
-There should now be a compile error on the `latest` port. This is because it's attempting to call `updateItems` with a list of IDs instead of a list of Items. To fix this, we need to chain Tasks together. So, let's create a set of functions that - given a list of IDs - will create a list of Tasks, downloading the Items, and then sequence them into a single Task.
-
-```elm
-itemUrl = "https://hacker-news.firebaseio.com/v0/item/"
-
--- create a sequence of tasks that will download hacker news items
-downloadItems : List Int -> Task.Task Http.Error (List Item)
-downloadItems ids = Task.sequence (List.map item ids)
-
--- download a single item from Hacker News give its ID
-item : Int -> Task.Task Http.Error Item
-item id = Http.get itemDecoder (itemUrl ++ (toString id) ++ ".json")
-
--- JSON decoder for an Item
-itemDecoder : Json.Decoder.Decoder Item
-itemDecoder =
-    Json.Decoder.object4 Item
-        ("id" := Json.Decode.int
-        ("type" := Json.Decode.string)
-        ("title" := Json.Decode.string)
-        (Json.maybe ("url" := Json.string))
-```
-
-*Note: even though `Item` is a `type alias`, it is also a function that takes 4 parameters: an id, type, title, and optional url. The `object4` decoder chains the decoding of a JSON object and then passes the results of the keys parsed to the `Item` function.*
-
-Now we can update the `latest` port to chain the Tasks together...
-
-```elm
-port latest = topStories
-    `Task.andThen` downloadItems
-    `Task.andThen` updateItems
-```
-
-If you run `Main.elm` now, it will probably take a while. This is because `topStories` returns a list of ~500 IDs. It's highly doubtful that you'd want all of them. So, let's trim that to only the top 20 for now.
-
-```elm
-downloadItems ids = Task.sequence (List.map item (List.take 20 ids))
-```
-
-## Filtering Stories
-
-All sorts of things are posted to Hacker News: stories, polls, jobs, etc. For this tutorial, though, we're only going to care about the stories. So, let's create a new Signal that filters non-stories from the list of Items.
-
-```elm
--- a signal that is only a list of story items 
-stories : Signal (List Item)
-stories = Signal.map (List.filter (\i -> i.kind == "story")) items.signal
-```
-
-As you can see, every time the `items` Mailbox is updated, `stories` will read and filter it into a new list of Items. We can now update `main` to watch the `stories` Signal instead.
-
-```elm
-main = Signal.map (\story -> Html.body [] [Html.text (toString story)]) stories
-```
-
-## A Better Presentation
-
-Last, it would be nice to render the stories a bit nicer than they are currently...
-
-```elm
--- create an ordered list of items
-renderItems : List Item -> Html.Html
-renderItems items = Html.ol [] (List.map render items)
-
--- create a list item
-render : Item -> Html.Html
-render item = Html.li [] [link item]
-
--- create a link to an item
-link : Item -> Html.Html
-link item =
-    let def = "https://news.ycombinator.com/item?id=" ++ (toString item.id) in
-    let url = Maybe.withDefault def item.url in
-    Html.a [Html.Attributes.href url] [Html.text item.title]
-```
-
-And, let's update `main` to render them...
-
-```elm
-main = Signal.map (\items -> Html.body [] [renderItems items]) stories
-```
+* TEM is *the* method of building applications in Elm
+* It wraps your program in the `Model`, `View`, `Update` pattern
+* You initialize the program with the `Model`
+* You provide the program with a function to render the `Model` (the `View`)
+* You define a message type that is used to `Update` the `Model`
+* The messages are wrapped - for type safety - into `Cmd` and `Sub`
+* A `Cmd` is the result of a `Task`
+* A `Sub` is the result of an event subscription
+* You transform the results of task and subscriptions into your message type
+* The `Cmd` and `Sub` are used by TEM to route your message to the `Update`
 
 That's it!
 
-## What's Next?
+It's very important that you understand this moving forward. Once it "clicks", Elm is wonderful to use.
 
-Obviously the `elm-hn` reposity does considerably more...
+## Putting it All Together
 
-* Ranks and sorts the stories
-* Continuously updates the stories periodically
-* Shows author, points, comments, ...
-* Styles the output
+Next is a walk-through of using TEM to create a very simple Hacker News reader. It won't have all the features of the reader in this repo, but it will get you started and you should be able to use the source code in this repository to take your version to the next level.
 
-All of these are pretty trivial once you have the full understanding of how to use Tasks, Signals, and ports. So, the above features are left as exercises to the reader. Look at the code and try and add them each yourself. And have fun doing it!
+Coming soon... 
