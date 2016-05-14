@@ -104,6 +104,7 @@ buttonStyle =
     , descriptor =
         [ ("color", "#aaa" )
         , ("text-decoration", "none")
+        , ("outline", "0")
         ]
     }
 
@@ -184,6 +185,7 @@ linkStyle =
     , descriptor =
         [ ("color", "#d73")
         , ("text-decoration", "none")
+        , ("outline", "0")
         ]
     }
 
