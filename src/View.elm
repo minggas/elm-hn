@@ -11,7 +11,8 @@ import Styles exposing (..)
 
 {-| Render a list of Stories to HTML. -}
 viewStories : Stylesheet x Class msg -> List Story -> List (Html msg)
-viewStories css stories = List.map (viewStory css) stories
+viewStories css stories =
+    List.map (viewStory css) stories
 
 {-| Render a single Story to HTML. -}
 viewStory : Stylesheet x Class msg -> Story -> Html msg
@@ -23,11 +24,13 @@ viewStory css story =
 
 {-| Render a link to an external page. -}
 link : String -> String -> Html a
-link url desc = a [ href url, target "_blank" ] [ text desc ]
+link url desc =
+    a [ href url, target "_blank" ] [ text desc ]
 
 {-| Render the title of a Story to HTML. -}
 title : HN.Item -> Html a
-title item = link (Maybe.withDefault (HN.comments item) item.url) item.title
+title item =
+    link (Maybe.withDefault (HN.comments item) item.url) item.title
 
 {-| Render a link to the comments of a Story to HTML. -}
 comments : HN.Item -> Html a

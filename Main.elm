@@ -12,10 +12,10 @@ import Story exposing (..)
 import Styles exposing (..)
 import View exposing (..)
 
-{-| Top stories or Newest. -}
-type View = Top | Newest
+{-| The list of items to show. -}
+type View = Top | Newest | Show | Ask
 
-{-| The Model is just a list of stories. -}
+{-| The Model is a list of stories, the view type, and loading flag. -}
 type alias Model =
     { stories : List Story
     , view : View
@@ -28,6 +28,8 @@ type Msg
     | Refresh (List Story)
     | ShowTop
     | ShowNewest
+    | ShowShow
+    | ShowAsk
     | None
 
 {-| The final, aggregated model rendered to HTML. -}
@@ -64,6 +66,16 @@ header model =
                 b [ stylesheet.class Enabled ] [ text "New" ]
               else
                 a [ href "#", onClick ShowNewest ] [ text "New" ]
+            , text " • "
+            , if model.view == Show then
+                b [ stylesheet.class Enabled ] [ text "Show" ]
+              else
+                a [ href "#", onClick ShowShow ] [ text "Show" ]
+            , text " • "
+            , if model.view == Ask then
+                b [ stylesheet.class Enabled ] [ text "Ask" ]
+              else
+                a [ href "#", onClick ShowAsk ] [ text "Ask" ]
             ]
         ]
 
@@ -75,7 +87,8 @@ loader model =
 
 {-| Every minute, get the top 30 stories from HN. -}
 latest : Model -> Sub Msg
-latest model = every minute Get
+latest model =
+    every minute Get
 
 {-| Update the model. -}
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -85,6 +98,8 @@ update msg model =
         Refresh stories -> updateStories model stories
         ShowTop -> updateView model Top
         ShowNewest -> updateView model Newest
+        ShowShow -> updateView model Show
+        ShowAsk -> updateView model Ask
         None -> (model, Cmd.none)
 
 {-| Download new stories. -}
@@ -94,6 +109,8 @@ downloadStories model time =
         case model.view of
             Top -> HN.top
             Newest -> HN.new
+            Show -> HN.showHN
+            Ask -> HN.askHN
     in
     ( { model | loading = True }
     , perform ignore Refresh <| stories 30 time items

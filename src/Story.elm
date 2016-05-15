@@ -14,11 +14,13 @@ type alias Story =
 
 {-| A filtered list of HN Items that are ranked by time. -}
 stories : Int -> Time.Time -> Task Error (List Int) -> Task Error (List Story)
-stories n time ids = Task.map (List.filterMap (story time)) (HN.items n ids)
+stories n time ids =
+    Task.map (List.filterMap (story time)) (HN.items n ids)
 
 {-| Filters stories from a list of HN Items and ranks them. -}
 filterStories : Time.Time -> List HN.Item -> List Story
-filterStories time items = List.filterMap (story time) <| items 
+filterStories time items =
+    List.filterMap (story time) <| items 
 
 {-| Create a Story from a HN Item if it is a Story. -}
 story : Time.Time -> HN.Item -> Maybe Story
