@@ -33,11 +33,11 @@ header model =
             ]
         , span [ stylesheet.id Controls ]
             [ button model Top "Top Stories"
-            , text " • "
+            , span [ stylesheet.class Sep ] [ text " " ]
             , button model Newest "New"
-            , text " • "
+            , span [ stylesheet.class Sep ] [ text " " ]
             , button model Show "Show"
-            , text " • "
+            , span [ stylesheet.class Sep ] [ text " " ]
             , button model Ask "Ask"
             ]
         ]

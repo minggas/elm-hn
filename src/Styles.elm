@@ -82,6 +82,7 @@ separatorStyle =
     { selectors = [ Class Sep ]
     , descriptor =
         [ ("padding-right", "10px")
+        , ("margin-right", "10px")
         , ("border-right", "1px solid #444") 
         ]
     }
@@ -103,8 +104,7 @@ readerStyle : Rule Id Class
 readerStyle =
     { selectors = [ Id Reader ]
     , descriptor =
-        [ ("padding-left", "10px")
-        , ("color", "#36d" )
+        [ ("color", "#36d" )
         , ("font-weight", "normal")
         ]
     }
