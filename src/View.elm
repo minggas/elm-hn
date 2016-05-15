@@ -51,7 +51,10 @@ content model =
 loader : Model -> Html Msg
 loader model =
     let notification =
-        if model.loading then [ img [ src "loader.gif" ] [] ] else []
+        if model.loading then
+            [ img [ src "images/loader.gif" ] [] ]
+        else
+            []
     in
     div [ stylesheet.id Loader ] notification
 
