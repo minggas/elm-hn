@@ -12,7 +12,7 @@ import View exposing (..)
 {-| The final, aggregated model rendered to HTML. -}
 main : Program Never
 main = App.program
-    { init = (Model.init, perform ignore Get now)
+    { init = (Model.init, perform (always None) Get now)
     , subscriptions = latest
     , update = update
     , view = page
@@ -45,7 +45,7 @@ downloadStories model time =
     ( { model
       | loading = True
       }
-    , perform ignore Refresh <| stories 30 time items
+    , perform (always None) Refresh <| stories 30 time items
     )
 
 {-| Update the model with a list of new stories (sorted by rank). -}
@@ -64,9 +64,5 @@ updateView model view =
     ( { model
       | view = view
       }
-    , perform ignore Get now
+    , perform (always None) Get now
     )
-
-{-| Helper to ignore any error condition. -}
-ignore : a -> Msg
-ignore _ = None
