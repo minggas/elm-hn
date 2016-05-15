@@ -10,6 +10,7 @@ import Css exposing (..)
 type Id
     = Header
     | Logo
+    | Reader
     | Controls
     | Loader
     | Content
@@ -21,15 +22,18 @@ type Class
     | Info
     | Comment
     | Enabled
+    | Sep
 
 {-| Final, rendered CSS <style> tag. -}
 stylesheet : Stylesheet Id Class msg
 stylesheet =
     css
-        [ "//fonts.googleapis.com/css?family=Droid+Sans:400,700" ]
+        [ "http://fonts.googleapis.com/css?family=Droid+Sans:400,700" ]
         [ bodyStyle
         , headerStyle
+        , separatorStyle
         , logoStyle
+        , readerStyle
         , controlsStyle
         , buttonStyle
         , enabledStyle
@@ -72,6 +76,16 @@ headerStyle =
         ]
     }
 
+{-| A line separator. -}
+separatorStyle : Rule Id Class
+separatorStyle =
+    { selectors = [ Class Sep ]
+    , descriptor =
+        [ ("padding-right", "10px")
+        , ("border-right", "1px solid #444") 
+        ]
+    }
+
 {-| Page title information. -}
 logoStyle : Rule Id Class
 logoStyle =
@@ -81,6 +95,17 @@ logoStyle =
         , ("position", "relative")
         , ("left", "30px")
         , ("top", "14px")
+        ]
+    }
+
+{-| Reader style. -}
+readerStyle : Rule Id Class
+readerStyle =
+    { selectors = [ Id Reader ]
+    , descriptor =
+        [ ("padding-left", "10px")
+        , ("color", "#36d" )
+        , ("font-weight", "normal")
         ]
     }
     

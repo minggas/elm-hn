@@ -25,7 +25,12 @@ page model =
 header : Model -> Html Msg
 header model =
     div [ stylesheet.id Header ]
-        [ span [ stylesheet.id Logo ] [ text "Hacker News Troll" ]
+        [ span [ stylesheet.id Logo ] 
+            [ img [ src "images/icon.png", height 22 ] []
+            , text " "
+            , span [ stylesheet.class Sep ] [ text "Hacker News" ] 
+            , span [ stylesheet.id Reader ] [ text "reader" ]
+            ]
         , span [ stylesheet.id Controls ]
             [ button model Top "Top Stories"
             , text " • "

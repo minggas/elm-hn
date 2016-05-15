@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "summary": "Hacker News Trolling",
+    "summary": "Hacker News | reader",
     "repository": "https://github.com/massung/elm-hn.git",
     "license": "BSD3",
     "source-directories": [

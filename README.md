@@ -4,6 +4,8 @@ While the code for the app is freely available (just clone and go...), this READ
 
 ![](https://raw.githubusercontent.com/massung/elm-hn/master/screenshot.PNG)
 
+*Note: The icon for the app was taken from [The Pictographers](https://www.iconfinder.com/bluewolfski), who make some pretty slick icons!*
+
 I assume you have Elm [installed](http://elm-lang.org/install/), your [favorite editor](https://code.visualstudio.com/) configured, and a basic understanding of the Elm syntax (from Haskell or ML). If not, there are other [good tutorials](https://pragmaticstudio.com/elm) introducing you to the syntax.
 
 ## Quickstart

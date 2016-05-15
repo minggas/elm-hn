@@ -1,11 +1,11 @@
 module Model exposing (..)
 
-import Time
-import Story
+import Time exposing (Time)
+import Story exposing (Story)
 
 {-| The Model is a list of stories, the view type, and loading flag. -}
 type alias Model =
-    { stories : List Story.Story
+    { stories : List Story
     , view : View
     , loading : Bool
     }
@@ -19,8 +19,8 @@ type View
 
 {-| All the possible Cmd messages to update the model. -}
 type Msg
-    = Get Time.Time
-    | Refresh (List Story.Story)
+    = Get Time
+    | Refresh (List Story)
     | View View
     | None
 
