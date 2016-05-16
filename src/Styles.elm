@@ -52,10 +52,10 @@ bodyStyle =
     { selectors = [ Type "body" ]
     , descriptor =
         [ ("background-color", "#333")
-        , ("font-family", "Droid Sans, sans-serif")
+        , ("font-family", "'Droid Sans', sans-serif")
         ]
     }
-    
+
 {-| The header styles. -}
 headerStyle : Rule Id Class
 headerStyle =

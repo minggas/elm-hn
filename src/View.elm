@@ -33,11 +33,11 @@ header model =
             ]
         , span [ stylesheet.id Controls ]
             [ button model Top "Top Stories"
-            , span [ stylesheet.class Sep ] [ text " " ]
+            , span [ stylesheet.class Sep ] []
             , button model Newest "New"
-            , span [ stylesheet.class Sep ] [ text " " ]
+            , span [ stylesheet.class Sep ] []
             , button model Show "Show"
-            , span [ stylesheet.class Sep ] [ text " " ]
+            , span [ stylesheet.class Sep ] []
             , button model Ask "Ask"
             ]
         ]
@@ -67,36 +67,36 @@ button model view title =
         a [ onClick (View view), href "#" ] [ text title ]
 
 {-| Render a list of Stories to HTML. -}
-viewStories : Stylesheet x Class msg -> List Story -> List (Html msg)
-viewStories css stories =
-    List.map (viewStory css) stories
+viewStories : Stylesheet x Class Msg -> List Story -> List (Html Msg)
+viewStories stylesheet stories =
+    List.map (viewStory stylesheet) stories
 
 {-| Render a single Story to HTML. -}
-viewStory : Stylesheet x Class msg -> Story -> Html msg
-viewStory css story =
-    div [ css.class Styles.Story ]
-        [ div [ css.class Title ] [ title story.item ]
-        , div [ css.class Info ] [ info story.item, comments story.item ]
+viewStory : Stylesheet x Class Msg -> Story -> Html Msg
+viewStory stylesheet story =
+    div [ stylesheet.class Styles.Story ]
+        [ div [ stylesheet.class Title ] [ title story.item ]
+        , div [ stylesheet.class Info ] [ info story.item, comments story.item ]
         ]
 
 {-| Render a link to an external page. -}
-link : String -> String -> Html a
+link : String -> String -> Html Msg
 link url desc =
     a [ href url, target "_blank" ] [ text desc ]
 
 {-| Render the title of a Story to HTML. -}
-title : HN.Item -> Html a
+title : HN.Item -> Html Msg
 title item =
     link (Maybe.withDefault (HN.comments item) item.url) item.title
 
 {-| Render a link to the comments of a Story to HTML. -}
-comments : HN.Item -> Html a
+comments : HN.Item -> Html Msg
 comments item =
     let n = toString <| List.length item.kids in
     link (HN.comments item) (n ++ " comments")
 
 {-| Render information about a HN Item. -}
-info : HN.Item -> Html a
+info : HN.Item -> Html Msg
 info item =
     text <| String.concat 
         [ "posted by "
