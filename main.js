@@ -3,9 +3,9 @@ const electron = require('electron');
 // Module to control application life.
 const app = electron.app;
 const remote = electron.remote;
-
-// Module to create native browser window and menu.
+const shell = electron.shell;
 const BrowserWindow = electron.BrowserWindow;
+//const Menu = remote.Menu;
 
 // Create the menu.
 //var menu = new Menu();
@@ -18,8 +18,8 @@ let mainWindow;
 // Create the browser window.
 function createWindow () {
     mainWindow = new BrowserWindow({
-        width: 660, 
-        height: 740,
+        width: 840, 
+        height: 760,
         icon: `images/icon.png`
     });
 
@@ -37,6 +37,12 @@ function createWindow () {
         // when you should delete the corresponding element.
         //
         mainWindow = null;
+    });
+
+    // Open URLs in the desktop browser.
+    mainWindow.webContents.on('new-window', function(event, url) {
+        event.preventDefault();
+        shell.openExternal(url);
     });
 }
 
@@ -64,9 +70,4 @@ app.on('activate', function () {
     if (mainWindow === null) {
         createWindow();
     }
-});
-
-// When the user clicks a link to open a URL.
-app.on('open-url', function(event, url) {
-    event.preventDefault();
 });
