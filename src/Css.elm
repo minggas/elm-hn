@@ -65,6 +65,7 @@ type alias Stylesheet id cls msg =
     { node : Html.Html msg
     , id : id -> Html.Attribute msg
     , class : cls -> Html.Attribute msg
+    , classes : List cls -> Html.Attribute msg
     }
 
 {-| CSS rule selectors follow the all the selectors found [here](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors)
@@ -258,4 +259,5 @@ stylesheet urls rules =
             ]
     , id = Html.Attributes.id << toString
     , class = Html.Attributes.class << toString
+    , classes = Html.Attributes.class << join " " << List.map toString
     }
