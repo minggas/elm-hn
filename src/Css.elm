@@ -161,7 +161,7 @@ for the rule. For example:
     
 That list of selectors would be the same as the following rule in CSS:
 
-    #MyId, .MyClass, div, a hr { ... }
+    #MyId, .MyClass, div, hr a { ... }
 -}
 type alias Rule id cls =
     { selectors : List (Sel id cls)
@@ -231,7 +231,12 @@ desc =
 {-| Render a rule (selectors and descriptor) to a string. -}
 rule : Rule id class -> String
 rule rule =
-    concat [ join "," (List.map sel rule.selectors), "{", desc rule.descriptor, "}" ]
+    concat
+        [ join "," <| List.map sel rule.selectors
+        , "{"
+        , desc rule.descriptor
+        , "}" 
+        ]
 
 {-| Render a url to an @import directive. -}
 importUrl : String -> String
@@ -246,7 +251,7 @@ class `Html.Attribute`s.
 stylesheet : List String -> List (Rule id cls) -> Stylesheet id cls msg
 stylesheet urls rules =
     { node = 
-        Html.node "style" [] 
+        Html.node "style" []
             [ Html.text <| 
                 (concat <| List.map importUrl urls) ++
                 (concat <| List.map rule rules)

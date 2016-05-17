@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import String
 
-import Css exposing (..)
+import Css exposing (Stylesheet)
 import HN exposing (..)
 import Model exposing (..)
 import Story exposing (..)
