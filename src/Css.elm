@@ -4,7 +4,7 @@ module Css exposing
     , Pseudo(..)
     , Descriptor
     , Rule
-    , css
+    , stylesheet
     )
 
 {-| This module is designed to allow you to add type-safe CSS styling
@@ -12,13 +12,18 @@ to your rendered Html via <style> tags. It has basic support for @import
 directives and CSS rules.
 
 Assuming you have types for id and class attributes, you "compile" a
-`Stylesheet` with the `css` function and use the functions returned in
-the `Stylesheet` to generate id and class attributes.
+`Stylesheet` with the `stylesheet` function and use the functions returned
+in the `Stylesheet` to generate id and class attributes.
 
 For example:
 
     type Id = MyId
     type Class = MyClass
+    
+    -- import some google fonts
+    imports =
+        [ "https://fonts.googleapis.com/css?family=Droid+Sans:400,700"
+        ]
 
     -- create a couple Css.rules, notice the use of `MyId` and `MyClass`. 
     rules =
@@ -31,10 +36,9 @@ For example:
         ]
     
     -- compile a stylesheet with no @imports and a couple rules
-    stylesheet = Css.css [] rules
+    stylesheet = Css.stylesheet imports rules
     
-    -- now, create some Html, add the <style> node, and safely use
-    -- your id and class
+    -- now, add the <style> node, and safely use your ids and classes
     html =
         div []
             [ stylesheet.node
@@ -49,8 +53,8 @@ For example:
 @docs css
 -}
 
-import Html exposing (..)
-import Html.Attributes exposing (id, class)
+import Html
+import Html.Attributes
 import String exposing (concat, cons, join)
 
 {-| A Stylesheet is a "compiled" Html <style> node, as well as functions
@@ -58,9 +62,9 @@ that allow you to safely create Html.Attributes for the id and class of
 your tags. It is returned by the `css` function.
 -}
 type alias Stylesheet id cls msg =
-    { node : Html msg
-    , id : id -> Attribute msg
-    , class : cls -> Attribute msg
+    { node : Html.Html msg
+    , id : id -> Html.Attribute msg
+    , class : cls -> Html.Attribute msg
     }
 
 {-| CSS rule selectors follow the all the selectors found [here](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors)
@@ -239,14 +243,14 @@ a list of `Rule`s to generate. The `Stylesheet` contains an `Html.node`
 to include in your DOM and functions for generating type-safe id and
 class `Html.Attribute`s.
 -} 
-css : List String -> List (Rule id cls) -> Stylesheet id cls msg
-css urls rules =
+stylesheet : List String -> List (Rule id cls) -> Stylesheet id cls msg
+stylesheet urls rules =
     { node = 
-        node "style" [] 
-            [ text <| 
+        Html.node "style" [] 
+            [ Html.text <| 
                 (concat <| List.map importUrl urls) ++
                 (concat <| List.map rule rules)
             ]
-    , id = id << toString
-    , class = class << toString
+    , id = Html.Attributes.id << toString
+    , class = Html.Attributes.class << toString
     }

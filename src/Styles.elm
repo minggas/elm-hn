@@ -27,7 +27,7 @@ type Class
 {-| Final, rendered CSS <style> tag. -}
 stylesheet : Stylesheet Id Class msg
 stylesheet =
-    css
+    Css.stylesheet
         [ "https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700"
         , "https://fonts.googleapis.com/css?family=Roboto:400,700"
         ]
