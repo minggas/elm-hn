@@ -113,7 +113,7 @@ The first part of The Elm Architecture that you need to fully understand is the 
 type Cmd msg
 ```
 
-What's important to know about `Cmd` is that it is simply a type wrapper for The Elm Architecture to preserve type safety. Internally, TEA (the Elm Architecture) doesn't know what type you'll use for your update messages, but it will need to pass them around safely. It does this by wrapping it with `Cmd`.
+What's important to know about `Cmd` is that it - as far as we are concerned - is simply a type wrapper for The Elm Architecture to preserve type safety. Internally, TEA (the Elm Architecture) doesn't know what type you'll use for your update messages, but it will need to pass them around safely. It does this by wrapping it with `Cmd`.
 
 To put this into practice, let's define our `Msg` type to just be a `String`. Whenever our application receives a `Msg`, it updates the current model to the value of the `Msg`.
 
@@ -163,7 +163,11 @@ update msg model =
 
 change : Msg -> Cmd Msg
 change msg =
-    Task.perform identity identity (Task.succeed msg)
+    let
+        onError = identity
+        onSuccess = identity
+    in
+    Task.perform onError onSuccess (Task.succeed msg)
 ```
 
 Now, in the `init` of our application, we create an initial `Cmd` for our `Msg` so TEA can properly route it to our `update` function, which changes the `Model`. And, when we run the app, we can see that it works.
@@ -190,7 +194,11 @@ Last, our `changeModel` function needs to take a `String` and transform the resu
 ```elm
 change : String -> Cmd Msg
 change s =
-    Task.perform (always Nothing) Just (Task.succeed s)
+    let
+        onError = always Nothing
+        onSuccess = Just
+    in
+    Task.perform onError onSuccess (Task.succeed s)
 ```
 
 Excellent! If we run, we should see everything still works.
@@ -198,7 +206,7 @@ Excellent! If we run, we should see everything still works.
 Just for kicks, let's make sure it does the right thing if the task fails. We'll do this by creating a `Task` that we know will fail.
 
 ```elm
-    Task.perform (always Nothing) Just (Task.fail 0)
+    Task.perform onError onSuccess (Task.fail 0)
 ```
 
 And, just as it should, the `model` doesn't change.
