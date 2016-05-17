@@ -10,7 +10,7 @@ I assume you have Elm [installed](http://elm-lang.org/install/), your [favorite 
 
 ## Quickstart
 
-If all you care about is the application, after cloning the repository, you'll need to download and install all the required modules that are used. This can be done on the command line with `elm package install`. Once the dependencies are installed, you can build the app with `elm make Main.elm`. The `index.html` file should have been created, and you can open it to see the app running.
+If all you care about is the application, after cloning the repository, you'll need to download and install all the required modules that are used. This can be done on the command line with `elm package install`. Once the dependencies are installed, you can build the app with `elm make Main.elm --output=elm.js`. The `index.html` can then be opened and away you go. If you have [Electron](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/) installed, you can also launch it that way: `electron .`.
 
 ## Introduction to The Elm Architecture
 
@@ -25,7 +25,6 @@ First, create a new project folder. Name it anything you like, `cd` into it, and
 And you'll need a couple other packages, too...
 
     $ elm package install elm-lang/html
-    $ elm package install evancz/elm-http
 
 Finally, let's create a simple `Hello, world!` Elm file that we can build, run, and see in the browser.
 
