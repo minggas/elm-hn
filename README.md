@@ -33,7 +33,6 @@ Finally, let's create a simple `Hello, world!` Elm file that we can build, run, 
 module Main exposing (main)
 
 import Html
-import Html.Attributes
 import Html.App
 
 main =
@@ -86,11 +85,15 @@ import Platform.Sub as Sub
 main : Program Never
 main =
     Html.App.program
-        { init = ( "Hello, world!", Cmd.none )
+        { init = ("Hello, world!", Cmd.none)
         , view = Html.text
-        , update = \msg model -> ( model, Cmd.none )
-        , subscriptions = \model -> Sub.none
+        , update = update
+        , subscriptions = always Sub.none
         }
+        
+update : msg -> Model -> (Model, Cmd msg)
+update msg model =
+    (model, Cmd.none)
 ```
 
 Okay, a lot has changed, but the output is the same...
@@ -99,7 +102,7 @@ First, notice that we've imported a couple new modules: `Platform.Cmd` and `Plat
 
 Next, instead of passing in `model`, we pass in `init`, which consists of both the `Model` and an initial `Cmd` (for which we don't want to use yet).
 
-Also, our `update` function has changed its signature as well. Not only does it take a mysterious `msg` parameter (which we're currently ignoring), but it also returns the `model` and a `Cmd`, just like in `init`.
+Also, our `update` function (which we've refactored out) has changed its signature as well. Not only does it take a mysterious `msg` parameter, which we're currently ignoring, but it also returns the `model` and a `Cmd`, just like the `init`.
 
 Finally, there's a `subscriptions`. We'll get back to those later, but for now, we don't want any.
 
@@ -113,32 +116,34 @@ type Cmd msg
 
 What's important to know about `Cmd` is that it is simply a type wrapper for The Elm Architecture to preserve type safety. Internally, TEA (the Elm Architecture) doesn't know what type you'll use for your update messages, but it will need to pass them around safely. It does this by wrapping it with `Cmd`.
 
-To put this into practice, let's create an update message for our application that will change the message being displayed to a different string.
+To put this into practice, let's define our `Msg` type to just be a `String`. Whenever our application receives a `Msg`, it updates the current model to the value of the `Msg`.
 
 ```elm
 type alias Model = String
 type alias Msg = String
 ```
 
-Next, let's change our `main` definition. First, let's refactor the `update` function. Since our `model` is a `String` and so is our `Msg`, we can just replace the existing `model` with the incoming `Msg`.
+Next, let's change the definition of our `update` function to properly accept our new `Msg` type, and update the model appropriately.
 
 ```elm
-main =
-    Html.App.program
-        { init = ( "Hello, world!", Cmd.none )
-        , view = Html.text
-        , update = update
-        , subscriptions = \model -> Sub.none
-        }
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     (msg, Cmd.none)
 ```
 
-Finally, we need to create a `Cmd` that TEA can receive, unbox, and pass the `Msg` to our `update` function. In order to create a `Cmd`, we need to perform a [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Task). So, let's create a `Task` that will send `Cmd Msg` to TEA, which will pass on the `Msg` to our `update` function...
+Finally, we need to create a `Cmd` that TEA (The Elm Architecture) can receive, unbox, and pass the `Msg` to our `update` function. To do this, we `perform` a [Task](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Task). All tasks in Elm are executed in the background, and the resulting `Cmd` is routed to our application when done.
+
+Here's what our current program looks like - in full - now...
 
 ```elm
+module Main exposing (main)
+
+import Html
+import Html.App
+
+import Platform.Cmd as Cmd
+import Platform.Sub as Sub
+
 import Task
 
 type alias Model = String
@@ -147,21 +152,19 @@ type alias Msg = String
 main : Program Never
 main =
     Html.App.program
-        { init = ( "Hello, world!", changeModel "It changed!" )
+        { init = ("Hello, world!", change "It changed!")
         , view = Html.text
         , update = update
-        , subscriptions = \model -> Sub.none
+        , subscriptions = always Sub.none
         }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-    ( msg, Cmd.none )
+    (msg, Cmd.none)
 
-changeModel : Msg -> Cmd Msg
-changeModel msg =
-    let onError = identity in
-    let onSuccess = identity in
-    Task.perform onError onSuccess (Task.succeed msg)
+change : Msg -> Cmd Msg
+change msg =
+    Task.perform identity identity (Task.succeed msg)
 ```
 
 Now, in the `init` of our application, we create an initial `Cmd` for our `Msg` so TEA can properly route it to our `update` function, which changes the `Model`. And, when we run the app, we can see that it works.
@@ -179,16 +182,16 @@ Now, our `update` function needs to understand that *maybe* (ha!) the `Msg` does
 ```elm
 update msg model =
     case msg of
-        Just newModel -> ( newModel, Cmd.none )
-        Nothing -> ( model, Cmd.none )
+        Just newModel -> (newModel, Cmd.none)
+        Nothing -> (model, Cmd.none)
 ```
 
 Last, our `changeModel` function needs to take a `String` and transform the result of the `Task` into a `Msg`.
 
 ```elm
-changeModel : String -> Cmd Msg
-changeModel s =
-    Task.perform (\_ -> Nothing) Just (Task.succeed s)
+change : String -> Cmd Msg
+change s =
+    Task.perform (always Nothing) Just (Task.succeed s)
 ```
 
 Excellent! If we run, we should see everything still works.
@@ -196,7 +199,7 @@ Excellent! If we run, we should see everything still works.
 Just for kicks, let's make sure it does the right thing if the task fails. We'll do this by creating a `Task` that we know will fail.
 
 ```elm
-    Task.perform (\_ -> Nothing) Just (Task.fail 0)
+    Task.perform (always Nothing) Just (Task.fail 0)
 ```
 
 And, just as it should, the `model` doesn't change.
@@ -207,36 +210,31 @@ Let's recap what we've discovered...
 
 * We initial our program with an initial `Model` and `Cmd`
 * A `Cmd` is a type wrapper so TEA can (safely) route our own `Msg` values to `update`
-* `Cmd`s can be created by performing tasks
-* Tasks can fail or succeed
-* The program must transform task results into `Msg` values
+* A `Cmd` is created by performing a `Task`
+* A `Task` can fail or succeed
+* The program must transform the result of a `Task` into a `Msg`
 
 ### Subscriptions
 
-Besides `Cmd`, the only other way of getting TEA to send a `Msg` to our `update` function is with a `Sub`scription to an event. There are many different events that can be subscribed to (mouse, keyboard, time, ...). And these are all done via the `subscriptions` function of your program.
+Besides `Cmd`, another way of getting TEA to send a `Msg` to our `update` function is with a subscription (`Sub`) to an event. There are many different events that can be subscribed to (mouse, keyboard, time, and more). And these are all done via the `subscriptions` function of your program.
 
-Every time your `model` is updated, TEA calls the `subscriptions` function to ask the application for a list of subscriptions it should listen to, and `update` with.
+Every time your `model` is updated, TEA calls the `subscriptions` function to ask the application for a list of subscriptions it should listen to, given the current `model`.
 
-As an example, let's create a simple subscription (`Sub`) that updates our `Model` with the current time about every second.
+As an example, let's create a simple subscription that updates our `Model` with the current time about every second.
 
 ```elm
-import Time
-
-main : Program Never
-main =
-    Html.App.program
-        { init = ( "Hello, world!", changeModel "It changed!" )
-        , view = Html.text
-        , update = update
-        , subscriptions = subscriptions
-        }
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Time.every Time.second (Just << toString)
 ```
 
-From these modifications, we can see that based on the `model` (ignored in this instance), we create a subscription to an event (`Time.every Time.second`) and give it a function (`Just << toString`) that can convert the event parameter (time) into a `Msg`. The `Msg` is boxed into a `Sub` (just like a `Cmd`), which TEA can then route to the `update` function.
+What is happening?
+
+* When our `model` changes, the `subscriptions` function is called
+* It should return a `Sub` that it will listen to
+* In this case, the subscription is `Time.every Time.second`
+* Just like a `Task`, we supply a function to transform the subscription data (`Time`) into a `Msg`
+* The resulting `Msg` will be routed via TEA to `update`
 
 *Note: if you have many events you'd like to subscribe to, use [`Sub.batch`](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/Platform-Sub#batch) to aggregate multiple subscriptions into a single subscription.*
 
