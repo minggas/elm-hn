@@ -28,7 +28,9 @@ type Class
 stylesheet : Stylesheet Id Class msg
 stylesheet =
     css
-        [ "http://fonts.googleapis.com/css?family=Droid+Sans:400,700" ]
+        [ "https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700"
+        , "https://fonts.googleapis.com/css?family=Roboto:400,700"
+        ]
         [ bodyStyle
         , headerStyle
         , separatorStyle
@@ -52,7 +54,7 @@ bodyStyle =
     { selectors = [ Type "body" ]
     , descriptor =
         [ ("background-color", "#333")
-        , ("font-family", "'Droid Sans', sans-serif")
+        , ("font-family", "'Roboto Condensed', sans-serif")
         ]
     }
 
@@ -171,7 +173,8 @@ storyStyle : Rule Id Class
 storyStyle =
     { selectors = [ Class Story ]
     , descriptor =
-        [ ("margin", "0")
+        [ ("font-family", "'Roboto', sans-serif")
+        , ("margin", "0")
         , ("padding", "12px 30px")
         , ("background-color", "#333")
         , ("color", "#ddd")
