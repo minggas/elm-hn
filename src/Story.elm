@@ -33,10 +33,11 @@ story time item =
 {-| Calculates the page rank of an Item at a given Time. -}
 rank : Time.Time -> HN.Item -> Float
 rank time item =
-    let age = (time + 7200 - item.time) / 3600 in
-    let rank = case item.score of
-        0 -> 0
-        n -> (0.8 ^ (n - 1)) / (1.8 ^ age)
+    let
+        age = (Time.inSeconds time) - item.time
+        hours = age / 3600
+        base = if item.score <= 1 then 0.0 else toFloat item.score ^ 0.8
+        rank = base / ((hours + 2) ^ 1.8)
     in
     case item.url of
         Just _ -> rank

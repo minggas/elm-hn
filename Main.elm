@@ -52,7 +52,7 @@ downloadStories model time =
 updateStories : Model -> List Story -> (Model, Cmd Msg)
 updateStories model stories =
     ( { model
-      | stories = List.sortBy (\s -> s.rank) stories
+      | stories = List.sortBy (\s -> -s.rank) stories
       , loading = False
       }
     , Cmd.none
