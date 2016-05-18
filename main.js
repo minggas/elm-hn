@@ -25,6 +25,9 @@ function createWindow () {
 
     // Load the index.html of the app.
     mainWindow.loadURL(`file://${__dirname}/index.html`);
+    
+    // Disable the default menu bar.
+    mainWindow.setMenu(null);
 
     // Open the DevTools.
     //mainWindow.webContents.openDevTools();
