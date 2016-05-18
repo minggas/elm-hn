@@ -13,8 +13,12 @@
 	<!-- The app will take over this area... -->
 	<body></body>
 
-	<!-- Run ports.js to start the app after everything is loaded. -->
+	<!-- Launch the application. -->
 	<script type="text/javascript">
-		let elm = module.exports.Main.fullscreen();
+		if (window['Elm'] === undefined) {
+			window['Elm'] = module.exports
+		}
+		
+		Elm.Main.fullscreen()
 	</script>
 </html>
