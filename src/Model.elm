@@ -1,11 +1,12 @@
 module Model exposing (..)
 
 import Time exposing (Time)
-import Story exposing (Story)
+import Story exposing (Story, sortByRank)
 
 {-| The Model is a list of stories, the view type, and loading flag. -}
 type alias Model =
     { stories : List Story
+    , sortFunction : List Story -> List Story
     , view : View
     , loading : Bool
     }
@@ -27,4 +28,4 @@ type Msg
 {-| The initial model -}
 init : Model
 init = 
-    Model [] Top False
+    Model [] sortByRank Top False

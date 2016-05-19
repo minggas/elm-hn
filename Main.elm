@@ -35,15 +35,16 @@ update msg model =
 {-| Download new stories. -}
 downloadStories : Model -> Time.Time -> (Model, Cmd Msg)
 downloadStories model time =
-    let items =
+    let (items, sortFunction) =
         case model.view of
-            Top -> HN.top
-            Newest -> HN.new
-            Show -> HN.showHN
-            Ask -> HN.askHN
+            Top -> (HN.top, sortByRank)
+            Newest -> (HN.new, sortByTime)
+            Show -> (HN.showHN, sortByRank)
+            Ask -> (HN.askHN, sortByRank)
     in
     ( { model
-      | loading = True
+      | sortFunction = sortFunction
+      , loading = True
       }
     , perform (always None) Refresh <| stories 30 time items
     )
@@ -52,7 +53,7 @@ downloadStories model time =
 updateStories : Model -> List Story -> (Model, Cmd Msg)
 updateStories model stories =
     ( { model
-      | stories = List.sortBy (\s -> -s.rank) stories
+      | stories = model.sortFunction stories
       , loading = False
       }
     , Cmd.none

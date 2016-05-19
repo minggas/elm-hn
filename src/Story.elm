@@ -42,3 +42,13 @@ rank time item =
     case item.url of
         Just _ -> rank
         Nothing -> rank * 0.4
+
+{-| Sort a list of stories by rank. -}
+sortByRank : List Story -> List Story
+sortByRank =
+    List.sortBy (\s -> -s.rank)
+
+{-| Sort a list of stories by time. -}
+sortByTime : List Story -> List Story
+sortByTime =
+    List.sortBy (\s -> -s.item.time)
