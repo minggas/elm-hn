@@ -94,7 +94,10 @@ viewStory : Stylesheet x Class Msg -> Story -> Html Msg
 viewStory stylesheet story =
     div [ stylesheet.class Styles.Story ]
         [ div [ stylesheet.class Title ] [ title story.item ]
-        , div [ stylesheet.class Info ] [ info story.item, comments story.item ]
+        , div [ stylesheet.class Info ]
+            [ info story.item
+            , comments story.item
+            ]
         ]
 
 {-| Render a link to an external page. -}
