@@ -9,6 +9,7 @@ import Css exposing (..)
 {-| CSS selector ids. -}
 type Id
     = Header
+    | Footer
     | Logo
     | Reader
     | Controls
@@ -33,6 +34,7 @@ stylesheet =
         ]
         [ bodyStyle
         , headerStyle
+        , footerStyle
         , separatorStyle
         , logoStyle
         , readerStyle
@@ -44,8 +46,10 @@ stylesheet =
         , storyStyle
         , titleStyle
         , infoStyle
-        , linkStyle
-        , linkHoverStyle
+        , storyLinkStyle
+        , storyLinkHoverStyle
+        , footerLinkStyle
+        , footerLinkHoverStyle
         ]
 
 {-| Fullscreen body styles. -}
@@ -76,6 +80,27 @@ headerStyle =
         , ("color", "#ddd")
         , ("font-weight", "bold")
         , ("border-bottom", "1px solid #000")
+        ]
+    }
+
+{-| The footer styles. -}
+footerStyle : Rule Id Class
+footerStyle =
+    { selectors = [ Id Footer ]
+    , descriptor =
+        [ ("margin", "0 auto")
+        , ("display", "inline-block")
+        , ("position", "fixed")
+        , ("bottom", "0")
+        , ("left", "0")
+        , ("background-color", "#222")
+        , ("color", "#666")
+        , ("border-top", "1px solid #000")
+        , ("font-size", "12px")
+        , ("padding-top", "4px")
+        , ("text-align", "center")
+        , ("width", "100%")
+        , ("height", "20px")
         ]
     }
 
@@ -153,9 +178,7 @@ loaderStyle : Rule Id Class
 loaderStyle =
     { selectors = [ Id Loader ]
     , descriptor =
-        [ ("position", "fixed")
-        , ("right", "30px")
-        , ("bottom", "10px")
+        [ ("margin-left", "10px")
         ]
     }
 
@@ -165,6 +188,7 @@ contentStyle =
     { selectors = [ Id Content ]
     , descriptor =
         [ ("margin-top", "50px")
+        , ("margin-bottom", "30px")
         , ("background-color", "#333")
         ]
     }
@@ -208,8 +232,8 @@ infoStyle =
     }
 
 {-| All links. -}
-linkStyle : Rule Id Class
-linkStyle =
+storyLinkStyle : Rule Id Class
+storyLinkStyle =
     { selectors = [ Descendant (Type "a") (Class Story) ]
     , descriptor =
         [ ("color", "#d73")
@@ -219,10 +243,34 @@ linkStyle =
     }
 
 {-| Link style when hovering over it. -}
-linkHoverStyle : Rule Id Class
-linkHoverStyle =
-    { selectors = [ Pseudo [Hover] <| Descendant (Type "a") (Class Story) ]
+storyLinkHoverStyle : Rule Id Class
+storyLinkHoverStyle =
+    { selectors =
+        [ Pseudo [Hover] <| Descendant (Type "a") (Class Story)
+        , Pseudo [Hover] <| Descendant (Type "a") (Id Footer)
+        ]
     , descriptor =
         [ ("text-decoration", "underline")
         ]
     }
+
+{-| All links. -}
+footerLinkStyle : Rule Id Class
+footerLinkStyle =
+    { selectors = [ Descendant (Type "a") (Id Footer) ]
+    , descriptor =
+        [ ("color", "#36d")
+        , ("text-decoration", "none")
+        , ("outline", "0")
+        ]
+    }
+
+{-| Link style when hovering over it. -}
+footerLinkHoverStyle : Rule Id Class
+footerLinkHoverStyle =
+    { selectors = [ Pseudo [Hover] <| Descendant (Type "a") (Id Footer) ]
+    , descriptor =
+        [ ("text-decoration", "underline")
+        ]
+    }
+    

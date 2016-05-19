@@ -18,7 +18,7 @@ page model =
         [ stylesheet.node
         , header model
         , content model
-        , loader model
+        , footer model
         ]
 
 {-| Renders the title header and controls. -}
@@ -30,6 +30,7 @@ header model =
             , text " "
             , span [ stylesheet.class Sep ] [ text "Hacker News" ] 
             , span [ stylesheet.id Reader ] [ text "reader" ]
+            , loader model
             ]
         , span [ stylesheet.id Controls ]
             [ button model Top "Top Stories"
@@ -40,6 +41,20 @@ header model =
             , span [ stylesheet.class Sep ] []
             , button model Ask "Ask"
             ]
+        ]
+
+{-| Render the footer. -}
+footer : Model -> Html Msg
+footer model =
+    div [ stylesheet.id Footer ]
+        [ span [] [ text "Copyright (c) Jeffrey Massung " ]
+        , link "http://twitter.com/stymiedcoder" "@stymiedcoder"
+        , span [ stylesheet.class Sep ] []
+        , span [] [ text "Powered by " ]
+        , link "http://elm-lang.org" "Elm"
+        , span [ stylesheet.class Sep ] []
+        , span [] [ text "Source available on " ]
+        , link "http://github.com/massung/elm-hn" "GitHub"
         ]
 
 {-| Render the main content area. -}
@@ -56,7 +71,7 @@ loader model =
         else
             []
     in
-    div [ stylesheet.id Loader ] notification
+    span [ stylesheet.id Loader ] notification
 
 {-| Renders a control button. -}
 button : Model -> View -> String -> Html Msg
