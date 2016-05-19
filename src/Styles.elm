@@ -55,6 +55,7 @@ bodyStyle =
     , descriptor =
         [ ("background-color", "#333")
         , ("font-family", "'Roboto Condensed', sans-serif")
+        , ("margin", "0")
         ]
     }
 
