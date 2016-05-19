@@ -9,7 +9,7 @@ import Css exposing (Stylesheet)
 import HN exposing (..)
 import Model exposing (..)
 import Story exposing (..)
-import Styles exposing (..)
+import Styles exposing (Id(..), Class(..), stylesheet)
 
 {-| Wrap a list of rendered Stories into a parent HTML element. -}
 page : Model -> Html Msg
@@ -43,19 +43,22 @@ header model =
             ]
         ]
 
-{-| Render the footer. -}
+{-| Render the footer, but only if there's content. -}
 footer : Model -> Html Msg
 footer model =
-    div [ stylesheet.id Footer ]
-        [ span [] [ text "Copyright (c) Jeffrey Massung " ]
-        , link "http://twitter.com/stymiedcoder" "@stymiedcoder"
-        , span [ stylesheet.class Sep ] []
-        , span [] [ text "Powered by " ]
-        , link "http://elm-lang.org" "Elm"
-        , span [ stylesheet.class Sep ] []
-        , span [] [ text "Source available on " ]
-        , link "http://github.com/massung/elm-hn" "GitHub"
-        ]
+    if List.isEmpty model.stories then
+        div [] []
+    else
+        div [ stylesheet.id Footer ]
+            [ span [] [ text "Copyright (c) Jeffrey Massung " ]
+            , link "http://twitter.com/stymiedcoder" "@stymiedcoder"
+            , span [ stylesheet.class Sep ] []
+            , span [] [ text "Powered by " ]
+            , link "http://elm-lang.org" "Elm"
+            , span [ stylesheet.class Sep ] []
+            , span [] [ text "Source available on " ]
+            , link "http://github.com/massung/elm-hn" "GitHub"
+            ]
 
 {-| Render the main content area. -}
 content : Model -> Html Msg

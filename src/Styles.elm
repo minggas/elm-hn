@@ -32,29 +32,29 @@ stylesheet =
         [ "https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700"
         , "https://fonts.googleapis.com/css?family=Roboto:400,700"
         ]
-        [ bodyStyle
-        , headerStyle
-        , footerStyle
-        , separatorStyle
-        , logoStyle
-        , readerStyle
-        , controlsStyle
-        , buttonStyle
-        , enabledStyle
-        , loaderStyle
-        , contentStyle
-        , storyStyle
-        , titleStyle
-        , infoStyle
-        , storyLinkStyle
-        , storyLinkHoverStyle
-        , footerLinkStyle
-        , footerLinkHoverStyle
+        [ body
+        , header
+        , footer
+        , separator
+        , logo
+        , reader
+        , controls
+        , button
+        , enabled
+        , loader
+        , content
+        , story
+        , title
+        , info
+        , storyLink
+        , storyLinkHover
+        , footerLink
+        , footerLinkHover
         ]
 
 {-| Fullscreen body styles. -}
-bodyStyle : Rule Id Class
-bodyStyle =
+body : Rule Id Class
+body =
     { selectors = [ Type "body" ]
     , descriptor =
         [ ("background-color", "#333")
@@ -64,8 +64,8 @@ bodyStyle =
     }
 
 {-| The header styles. -}
-headerStyle : Rule Id Class
-headerStyle =
+header : Rule Id Class
+header =
     { selectors = [ Id Header ]
     , descriptor =
         [ ("margin", "0")
@@ -84,15 +84,11 @@ headerStyle =
     }
 
 {-| The footer styles. -}
-footerStyle : Rule Id Class
-footerStyle =
+footer : Rule Id Class
+footer =
     { selectors = [ Id Footer ]
     , descriptor =
         [ ("margin", "0 auto")
-        , ("display", "inline-block")
-        , ("position", "fixed")
-        , ("bottom", "0")
-        , ("left", "0")
         , ("background-color", "#222")
         , ("color", "#666")
         , ("border-top", "1px solid #000")
@@ -105,8 +101,8 @@ footerStyle =
     }
 
 {-| A line separator. -}
-separatorStyle : Rule Id Class
-separatorStyle =
+separator : Rule Id Class
+separator =
     { selectors = [ Class Sep ]
     , descriptor =
         [ ("padding-right", "10px")
@@ -116,8 +112,8 @@ separatorStyle =
     }
 
 {-| Page title information. -}
-logoStyle : Rule Id Class
-logoStyle =
+logo : Rule Id Class
+logo =
     { selectors = [ Id Logo ]
     , descriptor =
         [ ("font-size", "22px")
@@ -128,8 +124,8 @@ logoStyle =
     }
 
 {-| Reader style. -}
-readerStyle : Rule Id Class
-readerStyle =
+reader : Rule Id Class
+reader =
     { selectors = [ Id Reader ]
     , descriptor =
         [ ("color", "#36d" )
@@ -138,8 +134,8 @@ readerStyle =
     }
     
 {-| User options section. -}
-controlsStyle : Rule Id Class
-controlsStyle =
+controls : Rule Id Class
+controls =
     { selectors = [ Id Controls ]
     , descriptor =
         [ ("font-size", "18px")
@@ -151,8 +147,8 @@ controlsStyle =
     }
 
 {-| Control links. -}
-buttonStyle : Rule Id Class
-buttonStyle =
+button : Rule Id Class
+button =
     { selectors = [ Descendant (Type "a") (Id Header) ]
     , descriptor =
         [ ("color", "#aaa" )
@@ -162,8 +158,8 @@ buttonStyle =
     }
 
 {-| Toggle options for user. -}
-enabledStyle : Rule Id Class
-enabledStyle =
+enabled : Rule Id Class
+enabled =
     { selectors = [ Class Enabled ]
     , descriptor =
         [ ("background-color", "#36d")
@@ -174,8 +170,8 @@ enabledStyle =
     }
 
 {-| Loading gif. -}
-loaderStyle : Rule Id Class
-loaderStyle =
+loader : Rule Id Class
+loader =
     { selectors = [ Id Loader ]
     , descriptor =
         [ ("margin-left", "10px")
@@ -183,19 +179,18 @@ loaderStyle =
     }
 
 {-| The content body. -}
-contentStyle : Rule Id Class
-contentStyle =
+content : Rule Id Class
+content =
     { selectors = [ Id Content ]
     , descriptor =
         [ ("margin-top", "50px")
-        , ("margin-bottom", "30px")
         , ("background-color", "#333")
         ]
     }
 
 {-| A story div style. -}
-storyStyle : Rule Id Class
-storyStyle =
+story : Rule Id Class
+story =
     { selectors = [ Class Story ]
     , descriptor =
         [ ("font-family", "'Roboto', sans-serif")
@@ -208,8 +203,8 @@ storyStyle =
     }
 
 {-| The title of the story. -}
-titleStyle : Rule Id Class
-titleStyle =
+title : Rule Id Class
+title =
     { selectors = [ Class Title ]
     , descriptor =
         [ ("font-size", "16px")
@@ -222,8 +217,8 @@ titleStyle =
     }
 
 {-| The posted by span. -}
-infoStyle : Rule Id Class
-infoStyle =
+info : Rule Id Class
+info =
     { selectors = [ Class Info ]
     , descriptor =
         [ ("font-size", "12px")
@@ -232,8 +227,8 @@ infoStyle =
     }
 
 {-| All links. -}
-storyLinkStyle : Rule Id Class
-storyLinkStyle =
+storyLink : Rule Id Class
+storyLink =
     { selectors = [ Descendant (Type "a") (Class Story) ]
     , descriptor =
         [ ("color", "#d73")
@@ -243,8 +238,8 @@ storyLinkStyle =
     }
 
 {-| Link style when hovering over it. -}
-storyLinkHoverStyle : Rule Id Class
-storyLinkHoverStyle =
+storyLinkHover : Rule Id Class
+storyLinkHover =
     { selectors =
         [ Pseudo [Hover] <| Descendant (Type "a") (Class Story)
         , Pseudo [Hover] <| Descendant (Type "a") (Id Footer)
@@ -255,8 +250,8 @@ storyLinkHoverStyle =
     }
 
 {-| All links. -}
-footerLinkStyle : Rule Id Class
-footerLinkStyle =
+footerLink : Rule Id Class
+footerLink =
     { selectors = [ Descendant (Type "a") (Id Footer) ]
     , descriptor =
         [ ("color", "#36d")
@@ -266,8 +261,8 @@ footerLinkStyle =
     }
 
 {-| Link style when hovering over it. -}
-footerLinkHoverStyle : Rule Id Class
-footerLinkHoverStyle =
+footerLinkHover : Rule Id Class
+footerLinkHover =
     { selectors = [ Pseudo [Hover] <| Descendant (Type "a") (Id Footer) ]
     , descriptor =
         [ ("text-decoration", "underline")
