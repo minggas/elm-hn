@@ -15,7 +15,7 @@ import Styles exposing (Id(..), Class(..), stylesheet)
 page : Model -> Html Msg
 page model =
     div []
-        [ stylesheet.node
+        [ Css.style [] stylesheet
         , header model
         , content model
         , footer model
