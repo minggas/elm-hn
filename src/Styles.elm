@@ -75,7 +75,7 @@ header =
         , ("top", "0")
         , ("left", "0")
         , ("width", "100%")
-        , ("height", "50px")
+        , ("height", "2.75em")
         , ("overflow", "hidden")
         , ("background-color", "#222")
         , ("color", "#ddd")
@@ -97,7 +97,7 @@ footer =
         , ("padding-top", "4px")
         , ("text-align", "center")
         , ("width", "100%")
-        , ("height", "20px")
+        , ("height", "1.5em")
         ]
     }
 
@@ -183,7 +183,7 @@ content : Rule Id Class
 content =
     { selectors = [ Id Content ]
     , descriptor =
-        [ ("margin-top", "50px")
+        [ ("margin-top", "3em")
         , ("background-color", "#333")
         ]
     }
