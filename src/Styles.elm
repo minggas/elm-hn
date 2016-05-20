@@ -70,6 +70,7 @@ header =
     , descriptor =
         [ ("margin", "0")
         , ("display", "inline-block")
+        , ("font-size", "larger")
         , ("position", "fixed")
         , ("top", "0")
         , ("left", "0")
@@ -92,7 +93,7 @@ footer =
         , ("background-color", "#222")
         , ("color", "#666")
         , ("border-top", "1px solid #000")
-        , ("font-size", "3mm")
+        , ("font-size", "smaller")
         , ("padding-top", "4px")
         , ("text-align", "center")
         , ("width", "100%")
@@ -116,7 +117,7 @@ logo : Rule Id Class
 logo =
     { selectors = [ Id Logo ]
     , descriptor =
-        [ ("font-size", "6mm")
+        [ ("font-size", "larger")
         , ("position", "relative")
         , ("left", "30px")
         , ("top", "14px")
@@ -138,8 +139,7 @@ controls : Rule Id Class
 controls =
     { selectors = [ Id Controls ]
     , descriptor =
-        [ ("font-size", "4.5mm")
-        , ("font-weight", "200")
+        [ ("font-weight", "200")
         , ("position", "fixed")
         , ("right", "30px")
         , ("top", "16px")
@@ -207,7 +207,7 @@ title : Rule Id Class
 title =
     { selectors = [ Class Title ]
     , descriptor =
-        [ ("font-size", "4.5mm")
+        [ ("font-size", "medium")
         , ("font-weight", "bold")
         , ("margin-bottom", "6px")
         , ("overflow", "hidden")
@@ -221,7 +221,7 @@ info : Rule Id Class
 info =
     { selectors = [ Class Info ]
     , descriptor =
-        [ ("font-size", "3mm")
+        [ ("font-size", "smaller")
         , ("color", "#aaa")
         ]
     }
