@@ -69,14 +69,12 @@ header =
     { selectors = [ Id Header ]
     , descriptor =
         [ ("margin", "0")
-        , ("display", "inline-block")
         , ("font-size", "larger")
         , ("position", "fixed")
         , ("top", "0")
         , ("left", "0")
         , ("width", "100%")
         , ("height", "2.75em")
-        , ("overflow", "hidden")
         , ("background-color", "#222")
         , ("color", "#ddd")
         , ("font-weight", "bold")
