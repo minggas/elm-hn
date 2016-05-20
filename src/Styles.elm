@@ -210,9 +210,6 @@ title =
         [ ("font-size", "medium")
         , ("font-weight", "bold")
         , ("margin-bottom", "6px")
-        , ("overflow", "hidden")
-        , ("text-overflow", "ellipsis")
-        , ("white-space", "nowrap")
         ]
     }
 
