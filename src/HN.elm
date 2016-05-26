@@ -70,11 +70,6 @@ comments : Item -> String
 comments item =
     yc ++ (toString item.id)
 
-{-| URLs are optionally found. -}
-url : Json.Decoder (Maybe String)
-url =
-    Json.maybe <| "url" := Json.string
-
 {-| JSON decoder for a list of HN item child IDs. -}
 kids : Json.Decoder (List Int)
 kids =
@@ -93,5 +88,5 @@ decoder =
         ("by" := Json.string)
         ("time" := Json.float)
         ("score" := Json.int)
-        (url)
+        ("url" := Json.string |> Json.maybe)
         (kids)
