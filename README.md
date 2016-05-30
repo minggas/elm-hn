@@ -38,9 +38,9 @@ main =
     Html.text "Hello, world!"
 ```
 
-Save the above file as `Main.elm`, and build is with `elm make Main.elm`. It should successfully compile an `index.html` file that you can open in your browser.
+Save the above file as `Main.elm`, and build it with `elm make Main.elm`. It should successfully compile a `index.html` file that you can open in your browser.
 
-Let's improve the edit-compile-test loop, though, with Elm Reactor, while will auto-compile for us after we make changes and refresh the page.
+Let's improve the edit-compile-test loop, though, with Elm Reactor, which will auto-compile for us after we make changes and refresh the page.
 
     $ elm reactor
     Listening on http://127.0.0.1:8000/
@@ -115,13 +115,13 @@ type Cmd msg
 
 Internally, a `Cmd` is an operation that the Elm runtime will perform. Presumably this operation is native JavaScript, but it could also be an asynchronous operation and/or something that could fail. It then returns the result of that operation back to our application. 
 
-However, the only way a for our application to receive this value is via our `update` function. But, this poses a problem since our `update` function is defined as
+However, the only way for our application to receive this value is via our `update` function. But, this poses a problem since our `update` function is defined as
 
 ```elm
 update : msg -> Model -> (Model, Cmd msg)
 ```
 
-Notice our the first input to `update` is of type `msg`? This could be anything we want, but the type has to remain consistent throughout the entire program. We can't have the Elm runtime call `update` with a `Time` value from one operation, but then an `Http` result from another.
+Notice the first input to `update` is of type `msg`? This could be anything we want, but the type has to remain consistent throughout the entire program. We can't have the Elm runtime call `update` with a `Time` value from one operation, but then an `Http` result from another.
 
 Now, the astute reader will notice that the `Cmd` type wraps our `msg` type. This enables us - when we perform an operation - to provide a function that converts the return value of that operation into a `msg`. That way, at a later point, when the operation is executed, the runtime can transform it into a `msg`, and then eventually pass that `msg` to our `update` function.
 
@@ -227,7 +227,7 @@ And, just as it should, the `model` doesn't change.
 
 Let's recap...
 
-* We initial our program with an initial `Model` and `Cmd`.
+* We initialize our program with an initial `Model` and `Cmd`.
 * A `Cmd` is an operation performed by the Elm runtime sometime later.
 * For type safety, the result of an operation is transformed into a `Msg` type.
 * The runtime then sends the resulting `Msg` to our `update` function.
