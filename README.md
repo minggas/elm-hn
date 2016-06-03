@@ -10,7 +10,7 @@ I assume you have Elm [installed](http://elm-lang.org/install/), your [favorite 
 
 ## Quickstart
 
-If all you care about is the application, after cloning the repository, you'll need to download and install all the required modules that are used. This can be done on the command line with `elm package install`. Once the dependencies are installed, you can build the app with `elm make Main.elm --output=elm.js`. The `index.html` can then be opened and away you go. If you have [Electron](http://package.elm-lang.org/packages/elm-lang/core/4.0.0/) installed, you can also launch it that way: `electron .`.
+If all you care about is the application, after cloning the repository, you'll need to download and install all the required modules that are used. This can be done on the command line with `elm package install`. Once the dependencies are installed, you can build the app with `elm make Main.elm --output=elm.js`. The `index.html` can then be opened and away you go. If you have [Electron](http://electron.atom.io/) installed, you can also launch it that way: `electron .`.
 
 ## Introduction to The Elm Architecture
 
@@ -89,7 +89,7 @@ main =
         , update = update
         , subscriptions = always Sub.none
         }
-        
+
 update : msg -> Model -> (Model, Cmd msg)
 update msg model =
     (model, Cmd.none)
@@ -113,7 +113,7 @@ The first part of The Elm Architecture that you need to fully understand is the 
 type Cmd msg
 ```
 
-Internally, a `Cmd` is an operation that the Elm runtime will perform. Presumably this operation is native JavaScript, but it could also be an asynchronous operation and/or something that could fail. It then returns the result of that operation back to our application. 
+Internally, a `Cmd` is an operation that the Elm runtime will perform. Presumably this operation is native JavaScript, but it could also be an asynchronous operation and/or something that could fail. It then returns the result of that operation back to our application.
 
 However, the only way for our application to receive this value is via our `update` function. But, this poses a problem since our `update` function is defined as
 
@@ -233,7 +233,7 @@ Let's recap...
 * The runtime then sends the resulting `Msg` to our `update` function.
 * Most `Cmd` operations can succeed or fail.
 
-So, when you see a return value from an Elm function that is a `Cmd`, you know that it is an operations that will be executed sometime later by the Elm runtime, and the result of which will eventually make it to your `update` function. 
+So, when you see a return value from an Elm function that is a `Cmd`, you know that it is an operations that will be executed sometime later by the Elm runtime, and the result of which will eventually make it to your `update` function.
 
 ### Subscriptions
 
@@ -254,7 +254,7 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
-        
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Time.every Time.second (Just << toString)
