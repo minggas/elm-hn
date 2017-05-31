@@ -51,7 +51,7 @@ footer model =
     else
         div [ stylesheet.id Footer ]
             [ span [] [ text "Copyright (c) Jeffrey Massung " ]
-            , link "http://twitter.com/stymiedcoder" "@codeninja_blog"
+            , link "http://twitter.com/codeninja_blog" "@codeninja_blog"
             , span [ stylesheet.class Sep ] []
             , span [] [ text "Powered by " ]
             , link "http://elm-lang.org" "Elm"
